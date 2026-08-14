@@ -9,6 +9,7 @@ on:
       - ".github/workflows/android-apk.yml"
       - "android/**"
       - "app/**"
+      - "build/**"
       - "components/**"
       - "desktop/**"
       - "lib/**"
