@@ -1057,9 +1057,14 @@ textarea {
   outline: 3px solid rgba(28, 122, 86, 0.16);
 }
 
+.result-option:hover span {
+  border-color: #b9c8c0;
+  background: #f8faf9;
+}
+
 .result-option.pass input:checked + span { border-color: #8bc5a8; background: #e7f6ee; color: #176947; }
 .result-option.fail input:checked + span { border-color: #e69a9a; background: #fff0f0; color: #aa3232; }
-.result-option.na input:checked + span { border-color: #aab3ae; background: #f0f2f0; color: #5f6863; }
+.result-option.na input:checked + span { border-color: #7baed4; background: #e9f4fc; color: #245f91; box-shadow: inset 0 0 0 1px #a9cce7; }
 
 .notes-field {
   margin-bottom: 13px;

@@ -30,6 +30,9 @@ test("builds an offline Windows renderer with license and contact details", asyn
   assert.match(assets, /ذخیرهٔ تغییرات بازرسی/);
   assert.match(assets, /جدول جزئیات بازرسی‌ها/);
   assert.match(assets, /خروجی Excel بازرسی‌ها/);
+  assert.match(assets, /بازیابی انواع فایل پشتیبان/);
+  assert.match(assets, /نوع CSV شناخته نشد/);
+  assert.match(assets, /نامرتبط/);
 });
 
 test("uses hardened Electron window settings", async () => {

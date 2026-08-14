@@ -13,6 +13,10 @@ import {
   type FindingStatus,
 } from "@/lib/hse-core";
 import {
+  parseRestoreFile,
+  type BackupFinding,
+} from "@/lib/hse-backup";
+import {
   buildInspectionsCsv,
   CHECKLIST_RESULT_LABELS,
   countInspectionResults,
@@ -24,22 +28,7 @@ import {
 
 type Section = "dashboard" | "findings" | "checklists" | "reports" | "about";
 
-interface Finding {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  contractor: string;
-  category: string;
-  severity: number;
-  occurrence: number;
-  detection: number;
-  dueDate: string;
-  responsible: string;
-  status: FindingStatus;
-  createdAt: string;
-  updatedAt: string;
-}
+type Finding = BackupFinding;
 
 interface BackupFile {
   app: "HSE FieldLog";
@@ -260,17 +249,6 @@ function downloadText(filename: string, text: string, type: string) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
-}
-
-function isValidBackup(value: unknown): value is BackupFile {
-  if (!value || typeof value !== "object") return false;
-  const backup = value as Partial<BackupFile>;
-  return (
-    backup.app === "HSE FieldLog" &&
-    backup.version === 1 &&
-    Array.isArray(backup.findings) &&
-    Array.isArray(backup.inspections)
-  );
 }
 
 export default function Home() {
@@ -578,20 +556,30 @@ export default function Home() {
     event.target.value = "";
     if (!file) return;
     try {
-      const parsed: unknown = JSON.parse(await file.text());
-      if (!isValidBackup(parsed)) throw new Error("Invalid backup");
-      if (
-        !window.confirm(
-          "با بازیابی پشتیبان، داده‌های فعلی جایگزین می‌شوند. ادامه می‌دهید؟",
-        )
-      ) {
-        return;
-      }
-      setFindings(parsed.findings);
-      setInspections(parsed.inspections);
-      notify("فایل پشتیبان با موفقیت بازیابی شد.");
-    } catch {
-      notify("این فایل پشتیبان معتبر نیست.");
+      const parsed = parseRestoreFile(await file.text(), makeId);
+      const restoresFindings = parsed.findings !== undefined;
+      const restoresInspections = parsed.inspections !== undefined;
+      const findingCount = parsed.findings?.length ?? 0;
+      const inspectionCount = parsed.inspections?.length ?? 0;
+      const scope = restoresFindings && restoresInspections
+        ? `تمام موارد ایمنی (${findingCount.toLocaleString("fa-IR")}) و بازرسی‌ها (${inspectionCount.toLocaleString("fa-IR")}) جایگزین می‌شوند.`
+        : restoresFindings
+          ? `${findingCount.toLocaleString("fa-IR")} مورد ایمنی بازیابی و جایگزین می‌شود؛ سوابق بازرسی فعلی محفوظ می‌ماند.`
+          : `${inspectionCount.toLocaleString("fa-IR")} بازرسی بازیابی و جایگزین می‌شود؛ موارد ایمنی فعلی محفوظ می‌ماند.`;
+      if (!window.confirm(`${scope}\n\nادامه می‌دهید؟`)) return;
+
+      if (parsed.findings !== undefined) setFindings(parsed.findings);
+      if (parsed.inspections !== undefined) setInspections(parsed.inspections);
+      if (parsed.inspections !== undefined) resetInspectionForm(true);
+      notify(
+        parsed.format === "json"
+          ? "اطلاعات فایل JSON با موفقیت بازیابی شد."
+          : parsed.format === "findings-csv"
+            ? "موارد ایمنی از CSV با موفقیت بازیابی شدند."
+            : "بازرسی‌ها از CSV با موفقیت بازیابی شدند.",
+      );
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "این فایل پشتیبان معتبر نیست.");
     }
   };
 
@@ -997,6 +985,7 @@ export default function Home() {
                           <input
                             type="radio"
                             name={`check-${index}`}
+                            value={value}
                             checked={checklistResults[item] === value}
                             onChange={() => setChecklistResult(item, value)}
                           />
@@ -1140,9 +1129,13 @@ export default function Home() {
                   <span>ذخیرهٔ تمام موارد و بازرسی‌ها در فایل JSON</span>
                 </button>
                 <label className="action-card file-action">
-                  <strong>بازیابی فایل پشتیبان</strong>
-                  <span>جایگزینی داده‌های فعلی با یک پشتیبان معتبر</span>
-                  <input type="file" accept="application/json,.json" onChange={importBackup} />
+                  <strong>بازیابی انواع فایل پشتیبان</strong>
+                  <span>JSON کامل، CSV موارد ایمنی یا CSV جزئیات بازرسی‌ها</span>
+                  <input
+                    type="file"
+                    accept=".json,.csv,.tsv,.txt,.bak,.backup,application/json,text/csv,text/tab-separated-values,text/plain"
+                    onChange={importBackup}
+                  />
                 </label>
                 <button className="action-card" onClick={() => window.print()}>
                   <strong>چاپ گزارش مدیریتی</strong>
@@ -1296,7 +1289,7 @@ export default function Home() {
                   استفاده، کپی و تغییر نرم‌افزار طبق شرایط مجوز MIT مجاز است؛
                   اطلاعیهٔ کپی‌رایت و متن مجوز باید در نسخه‌های توزیع‌شده حفظ شود.
                 </p>
-                <span className="license-tag">نسخهٔ ۱.۰ · وب و ویندوز</span>
+                <span className="license-tag">نسخهٔ ۱.۲.۰ · وب و ویندوز</span>
               </article>
 
               <article className="license-card panel contact-card">

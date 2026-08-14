@@ -1,6 +1,6 @@
 {
   "name": "hse-fieldlog",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Persian HSE field log for web and Windows",
   "private": true,
   "main": "desktop/electron/main.cjs",

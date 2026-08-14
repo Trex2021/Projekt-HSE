@@ -14,7 +14,7 @@ Copyright and contact: **Ehsan Benvari** · [benvari.e@yahoo.com](mailto:benvari
 - Include complete checklist-item details in printable management reports and inspection CSV exports
 - Export findings to UTF-8 CSV for Excel
 - Print a management report or save it as PDF
-- Export and restore a versioned JSON backup
+- Export a versioned JSON backup and restore JSON, findings CSV, or inspections CSV files
 - Install as a PWA and use previously visited screens offline
 - Responsive Persian RTL interface
 - Native Windows desktop build with an offline local renderer
