@@ -12,9 +12,17 @@ import {
   summarizeFindings,
   type FindingStatus,
 } from "@/lib/hse-core";
+import {
+  buildInspectionsCsv,
+  CHECKLIST_RESULT_LABELS,
+  countInspectionResults,
+  removeInspection,
+  upsertInspection,
+  type ChecklistResult,
+  type Inspection,
+} from "@/lib/hse-inspections";
 
 type Section = "dashboard" | "findings" | "checklists" | "reports" | "about";
-type ChecklistResult = "pass" | "fail" | "na";
 
 interface Finding {
   id: string;
@@ -31,22 +39,6 @@ interface Finding {
   status: FindingStatus;
   createdAt: string;
   updatedAt: string;
-}
-
-interface InspectionItem {
-  label: string;
-  result: ChecklistResult;
-}
-
-interface Inspection {
-  id: string;
-  templateId: string;
-  templateName: string;
-  location: string;
-  inspector: string;
-  notes: string;
-  items: InspectionItem[];
-  createdAt: string;
 }
 
 interface BackupFile {
@@ -299,6 +291,7 @@ export default function Home() {
   const [checklistResults, setChecklistResults] = useState<
     Record<string, ChecklistResult>
   >({});
+  const [editingInspectionId, setEditingInspectionId] = useState<string | null>(null);
   const [toast, setToast] = useState("");
 
   const notify = (message: string) => {
@@ -440,6 +433,75 @@ export default function Home() {
     setChecklistResults((current) => ({ ...current, [label]: result }));
   };
 
+  const resetInspectionForm = (clearInspector = false) => {
+    setChecklistLocation("");
+    if (clearInspector) setInspector("");
+    setChecklistNotes("");
+    setChecklistResults({});
+    setEditingInspectionId(null);
+  };
+
+  const selectChecklistTemplate = (templateId: ChecklistId) => {
+    if (
+      editingInspectionId &&
+      !window.confirm("ویرایش فعلی رها شود و چک‌لیست دیگری باز شود؟")
+    ) {
+      return;
+    }
+    setSelectedChecklist(templateId);
+    resetInspectionForm(true);
+  };
+
+  const editInspection = (inspection: Inspection) => {
+    const template = CHECKLISTS.find((item) => item.id === inspection.templateId);
+    if (!template) {
+      notify("الگوی این بازرسی دیگر در برنامه وجود ندارد و قابل ویرایش نیست.");
+      return;
+    }
+    setSelectedChecklist(template.id);
+    setChecklistLocation(inspection.location);
+    setInspector(inspection.inspector);
+    setChecklistNotes(inspection.notes);
+    setChecklistResults(
+      Object.fromEntries(inspection.items.map((item) => [item.label, item.result])),
+    );
+    setEditingInspectionId(inspection.id);
+    window.requestAnimationFrame(() => {
+      document.getElementById("inspection-form")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+    notify("بازرسی برای ویرایش باز شد.");
+  };
+
+  const deleteInspection = (inspection: Inspection) => {
+    if (
+      !window.confirm(
+        `سابقهٔ «${inspection.templateName}» در ${inspection.location} حذف شود؟ این کار قابل بازگشت نیست.`,
+      )
+    ) {
+      return;
+    }
+    setInspections((current) => removeInspection(current, inspection.id));
+    if (editingInspectionId === inspection.id) resetInspectionForm(true);
+    notify("سابقهٔ بازرسی حذف شد.");
+  };
+
+  const clearInspectionHistory = () => {
+    if (!inspections.length) return;
+    if (
+      !window.confirm(
+        `تمام ${inspections.length.toLocaleString("fa-IR")} سابقهٔ بازرسی حذف شوند؟ پیش از ادامه در صورت نیاز فایل پشتیبان بگیرید. این کار قابل بازگشت نیست.`,
+      )
+    ) {
+      return;
+    }
+    setInspections([]);
+    resetInspectionForm(true);
+    notify("تمام سوابق بازرسی حذف شدند.");
+  };
+
   const saveInspection = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!checklistLocation.trim() || !inspector.trim()) {
@@ -451,8 +513,12 @@ export default function Home() {
       notify(`نتیجهٔ ${unanswered.length.toLocaleString("fa-IR")} مورد هنوز مشخص نشده است.`);
       return;
     }
+    const now = new Date().toISOString();
+    const editingInspection = editingInspectionId
+      ? inspections.find((item) => item.id === editingInspectionId)
+      : undefined;
     const inspection: Inspection = {
-      id: makeId(),
+      id: editingInspection?.id ?? makeId(),
       templateId: currentChecklist.id,
       templateName: currentChecklist.name,
       location: checklistLocation.trim(),
@@ -462,13 +528,15 @@ export default function Home() {
         label,
         result: checklistResults[label],
       })),
-      createdAt: new Date().toISOString(),
+      createdAt: editingInspection?.createdAt ?? now,
+      updatedAt: now,
     };
-    setInspections((current) => [inspection, ...current]);
-    setChecklistLocation("");
-    setChecklistNotes("");
-    setChecklistResults({});
-    notify("نتیجهٔ بازرسی ذخیره شد.");
+    setInspections((current) =>
+      upsertInspection(current, inspection, editingInspectionId),
+    );
+    const wasEditing = Boolean(editingInspectionId);
+    resetInspectionForm();
+    notify(wasEditing ? "تغییرات بازرسی ذخیره شد." : "نتیجهٔ بازرسی ذخیره شد.");
   };
 
   const exportBackup = () => {
@@ -494,6 +562,15 @@ export default function Home() {
       "text/csv;charset=utf-8",
     );
     notify("گزارش CSV آماده شد.");
+  };
+
+  const exportInspectionsCsv = () => {
+    downloadText(
+      `hse-inspections-${toInputDate(new Date())}.csv`,
+      buildInspectionsCsv(inspections),
+      "text/csv;charset=utf-8",
+    );
+    notify("گزارش جزئیات بازرسی‌ها آماده شد.");
   };
 
   const importBackup = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -842,10 +919,7 @@ export default function Home() {
                     className={template.id === selectedChecklist ? "template-card selected" : "template-card"}
                     key={template.id}
                     type="button"
-                    onClick={() => {
-                      setSelectedChecklist(template.id);
-                      setChecklistResults({});
-                    }}
+                    onClick={() => selectChecklistTemplate(template.id)}
                   >
                     <strong>{template.name}</strong>
                     <span>{template.description}</span>
@@ -855,13 +929,38 @@ export default function Home() {
               </div>
             </section>
 
-            <form className="inspection-form panel" onSubmit={saveInspection}>
+            <form
+              className="inspection-form panel"
+              id="inspection-form"
+              onSubmit={saveInspection}
+            >
               <div className="panel-heading">
-                <div><p className="eyebrow">فرم میدانی</p><h2>{currentChecklist.name}</h2></div>
+                <div>
+                  <p className="eyebrow">
+                    {editingInspectionId ? "ویرایش سابقه" : "فرم میدانی"}
+                  </p>
+                  <h2>{currentChecklist.name}</h2>
+                </div>
                 <span className="completion-chip">
                   {Object.keys(checklistResults).length.toLocaleString("fa-IR")} از {currentChecklist.items.length.toLocaleString("fa-IR")}
                 </span>
               </div>
+
+              {editingInspectionId ? (
+                <div className="editing-banner" role="status">
+                  <div>
+                    <strong>در حال ویرایش بازرسی ثبت‌شده</strong>
+                    <span>نتیجهٔ هر مورد، محل، بازرس و یادداشت را اصلاح و دوباره ذخیره کنید.</span>
+                  </div>
+                  <button
+                    className="text-button"
+                    type="button"
+                    onClick={() => resetInspectionForm(true)}
+                  >
+                    لغو ویرایش
+                  </button>
+                </div>
+              ) : null}
 
               <div className="form-grid two-columns">
                 <label>
@@ -918,26 +1017,98 @@ export default function Home() {
                   rows={3}
                 />
               </label>
-              <button className="primary-button full-width" type="submit">ذخیرهٔ نتیجه بازرسی</button>
+              <div className="inspection-submit-row">
+                <button className="primary-button full-width" type="submit">
+                  {editingInspectionId ? "ذخیرهٔ تغییرات بازرسی" : "ذخیرهٔ نتیجه بازرسی"}
+                </button>
+                {editingInspectionId ? (
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    onClick={() => resetInspectionForm(true)}
+                  >
+                    انصراف
+                  </button>
+                ) : null}
+              </div>
             </form>
 
             <section className="inspection-history panel">
               <div className="panel-heading">
-                <div><p className="eyebrow">سوابق</p><h2>آخرین بازرسی‌ها</h2></div>
+                <div>
+                  <p className="eyebrow">سوابق</p>
+                  <h2>بازرسی‌های ثبت‌شده</h2>
+                </div>
+                <button
+                  className="danger-button compact-button"
+                  type="button"
+                  onClick={clearInspectionHistory}
+                  disabled={!inspections.length}
+                >
+                  حذف همه
+                </button>
               </div>
               <div className="history-list">
-                {inspections.slice(0, 8).map((inspection) => {
-                  const failed = inspection.items.filter((item) => item.result === "fail").length;
+                {inspections.map((inspection) => {
+                  const counts = countInspectionResults(inspection.items);
                   return (
                     <article className="history-item" key={inspection.id}>
-                      <div>
-                        <strong>{inspection.templateName}</strong>
-                        <span>{inspection.location}</span>
-                        <small>{inspection.inspector} · {formatDate(inspection.createdAt)}</small>
+                      <div className="history-item-head">
+                        <div>
+                          <strong>{inspection.templateName}</strong>
+                          <span>{inspection.location}</span>
+                          <small>
+                            {inspection.inspector} · {formatDate(inspection.createdAt)}
+                            {inspection.updatedAt && inspection.updatedAt !== inspection.createdAt
+                              ? " · ویرایش‌شده"
+                              : ""}
+                          </small>
+                        </div>
+                        <span className={counts.fail ? "history-result failed" : "history-result passed"}>
+                          {counts.fail
+                            ? `${counts.fail.toLocaleString("fa-IR")} عدم انطباق`
+                            : "بدون عدم انطباق"}
+                        </span>
                       </div>
-                      <span className={failed ? "history-result failed" : "history-result passed"}>
-                        {failed ? `${failed.toLocaleString("fa-IR")} عدم انطباق` : "کاملاً منطبق"}
-                      </span>
+                      <div className="history-counts" aria-label="خلاصه نتایج بازرسی">
+                        <span className="pass">منطبق <strong>{counts.pass.toLocaleString("fa-IR")}</strong></span>
+                        <span className="fail">عدم انطباق <strong>{counts.fail.toLocaleString("fa-IR")}</strong></span>
+                        <span className="na">نامرتبط <strong>{counts.na.toLocaleString("fa-IR")}</strong></span>
+                      </div>
+                      <details className="history-details">
+                        <summary>مشاهدهٔ نتیجهٔ تمام موارد چک‌لیست</summary>
+                        <div className="history-detail-items">
+                          {inspection.items.map((item, index) => (
+                            <div className="history-detail-row" key={`${inspection.id}-${index}`}>
+                              <span>{item.label}</span>
+                              <strong className={`inspection-result-badge ${item.result}`}>
+                                {CHECKLIST_RESULT_LABELS[item.result]}
+                              </strong>
+                            </div>
+                          ))}
+                        </div>
+                        {inspection.notes ? (
+                          <p className="history-notes">
+                            <strong>یادداشت:</strong> {inspection.notes}
+                          </p>
+                        ) : null}
+                      </details>
+                      <div className="history-actions">
+                        <button
+                          className="secondary-button compact-button"
+                          type="button"
+                          onClick={() => editInspection(inspection)}
+                        >
+                          ویرایش
+                        </button>
+                        <button
+                          className="danger-button compact-button"
+                          type="button"
+                          onClick={() => deleteInspection(inspection)}
+                        >
+                          حذف این سابقه
+                        </button>
+                      </div>
                     </article>
                   );
                 })}
@@ -959,6 +1130,10 @@ export default function Home() {
                 <button className="action-card" onClick={exportCsv}>
                   <strong>خروجی Excel / CSV</strong>
                   <span>فهرست کامل موارد ایمنی و امتیازهای FMEA</span>
+                </button>
+                <button className="action-card" onClick={exportInspectionsCsv}>
+                  <strong>خروجی Excel بازرسی‌ها</strong>
+                  <span>نتیجهٔ تک‌تک موارد چک‌لیست، محل، بازرس و یادداشت</span>
                 </button>
                 <button className="action-card" onClick={exportBackup}>
                   <strong>دریافت فایل پشتیبان</strong>
@@ -992,13 +1167,20 @@ export default function Home() {
                 <div><span>بسته‌شده</span><strong>{summary.closed.toLocaleString("fa-IR")}</strong></div>
                 <div><span>بازرسی‌ها</span><strong>{inspections.length.toLocaleString("fa-IR")}</strong></div>
               </div>
+              <div className="report-section-title">
+                <div>
+                  <span>پیگیری اقدام‌های اصلاحی</span>
+                  <h3>جدول موارد ایمنی</h3>
+                </div>
+                <strong>{findings.length.toLocaleString("fa-IR")} مورد</strong>
+              </div>
               <div className="report-table-wrap">
                 <table>
                   <thead>
                     <tr><th>عنوان</th><th>محل / پیمانکار</th><th>RPN</th><th>وضعیت</th><th>مهلت</th></tr>
                   </thead>
                   <tbody>
-                    {findings.slice(0, 12).map((finding) => {
+                    {findings.map((finding) => {
                       const rpn = calculateRpn(
                         finding.severity,
                         finding.occurrence,
@@ -1017,6 +1199,56 @@ export default function Home() {
                   </tbody>
                 </table>
                 {!findings.length ? <div className="empty-state">داده‌ای برای گزارش وجود ندارد.</div> : null}
+              </div>
+              <div className="report-section-title inspection-report-heading">
+                <div>
+                  <span>پشتیبان قابل چاپ از سوابق چک‌لیست</span>
+                  <h3>جدول جزئیات بازرسی‌ها</h3>
+                </div>
+                <strong>{inspections.length.toLocaleString("fa-IR")} بازرسی</strong>
+              </div>
+              <div className="report-table-wrap inspection-report-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>چک‌لیست</th>
+                      <th>محل / بازرس</th>
+                      <th>تاریخ</th>
+                      <th>مورد کنترلی</th>
+                      <th>نتیجه</th>
+                      <th>یادداشت</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {inspections.flatMap((inspection) =>
+                      inspection.items.map((item, index) => (
+                        <tr key={`${inspection.id}-${index}`}>
+                          <td>{inspection.templateName}</td>
+                          <td>
+                            {inspection.location}
+                            <small>{inspection.inspector}</small>
+                          </td>
+                          <td>
+                            {formatDate(inspection.createdAt)}
+                            {inspection.updatedAt && inspection.updatedAt !== inspection.createdAt ? (
+                              <small>ویرایش: {formatDate(inspection.updatedAt)}</small>
+                            ) : null}
+                          </td>
+                          <td>{item.label}</td>
+                          <td>
+                            <span className={`inspection-result-badge ${item.result}`}>
+                              {CHECKLIST_RESULT_LABELS[item.result]}
+                            </span>
+                          </td>
+                          <td>{inspection.notes || "—"}</td>
+                        </tr>
+                      )),
+                    )}
+                  </tbody>
+                </table>
+                {!inspections.length ? (
+                  <div className="empty-state">بازرسی ثبت‌شده‌ای برای گزارش وجود ندارد.</div>
+                ) : null}
               </div>
               <footer className="report-footer">
                 این گزارش از داده‌های ذخیره‌شده روی دستگاه تهیه شده است.

@@ -26,6 +26,10 @@ test("builds an offline Windows renderer with license and contact details", asyn
   assert.match(html, /src="\.\/assets\//);
   assert.match(assets, /Ehsan Benvari/);
   assert.match(assets, /benvari\.e@yahoo\.com/);
+  assert.match(assets, /حذف همه/);
+  assert.match(assets, /ذخیرهٔ تغییرات بازرسی/);
+  assert.match(assets, /جدول جزئیات بازرسی‌ها/);
+  assert.match(assets, /خروجی Excel بازرسی‌ها/);
 });
 
 test("uses hardened Electron window settings", async () => {

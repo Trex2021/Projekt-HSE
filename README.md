@@ -10,6 +10,8 @@ Copyright and contact: **Ehsan Benvari** · [benvari.e@yahoo.com](mailto:benvari
 - Calculate FMEA Risk Priority Number (`Severity × Occurrence × Detection`)
 - Run built-in PPE, temporary electrical, mobile scaffold, and hose-reel checklists
 - Track inspection nonconformities
+- Review every saved checklist response, edit prior inspections, or delete one or all inspection records
+- Include complete checklist-item details in printable management reports and inspection CSV exports
 - Export findings to UTF-8 CSV for Excel
 - Print a management report or save it as PDF
 - Export and restore a versioned JSON backup
