@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 
@@ -40,6 +40,12 @@ interface BackupFile {
   findings: Finding[];
   inspections: Inspection[];
 }
+
+interface HsePrinterPlugin {
+  print(options: { jobName: string }): Promise<void>;
+}
+
+const HsePrinter = registerPlugin<HsePrinterPlugin>("HsePrinter");
 
 const STORAGE_KEY = "hse-fieldlog:v1";
 
@@ -289,6 +295,7 @@ export default function Home() {
     Record<string, ChecklistResult>
   >({});
   const [editingInspectionId, setEditingInspectionId] = useState<string | null>(null);
+  const [printingReport, setPrintingReport] = useState(false);
   const [toast, setToast] = useState("");
 
   const notify = (message: string) => {
@@ -586,6 +593,27 @@ export default function Home() {
       "text/csv;charset=utf-8",
       "گزارش جزئیات بازرسی‌ها آماده شد.",
     );
+  };
+
+  const printManagementReport = async () => {
+    if (printingReport) return;
+
+    if (Capacitor.getPlatform() !== "android") {
+      window.print();
+      return;
+    }
+
+    setPrintingReport(true);
+    try {
+      await HsePrinter.print({
+        jobName: `HSE FieldLog - ${toInputDate(new Date())}`,
+      });
+      notify("پنجرهٔ چاپ اندروید باز شد؛ چاپگر یا «ذخیره به‌صورت PDF» را انتخاب کنید.");
+    } catch {
+      notify("بازکردن پنجرهٔ چاپ انجام نشد؛ دوباره تلاش کنید.");
+    } finally {
+      setPrintingReport(false);
+    }
   };
 
   const importBackup = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -1174,8 +1202,12 @@ export default function Home() {
                     onChange={importBackup}
                   />
                 </label>
-                <button className="action-card" onClick={() => window.print()}>
-                  <strong>چاپ گزارش مدیریتی</strong>
+                <button
+                  className="action-card"
+                  disabled={printingReport}
+                  onClick={printManagementReport}
+                >
+                  <strong>{printingReport ? "در حال آماده‌سازی چاپ…" : "چاپ گزارش مدیریتی"}</strong>
                   <span>نسخهٔ مناسب چاپ یا ذخیره به‌صورت PDF</span>
                 </button>
               </div>

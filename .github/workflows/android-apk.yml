@@ -74,20 +74,20 @@ jobs:
           set -euo pipefail
           build_tools="$ANDROID_HOME/build-tools/36.0.0"
           mkdir -p outputs
-          cp android/app/build/outputs/apk/debug/app-debug.apk outputs/HSE-FieldLog-Android-1.2.0.apk
-          "$build_tools/aapt" dump badging outputs/HSE-FieldLog-Android-1.2.0.apk | tee outputs/apk-badging.txt
-          grep -F "package: name='com.ehsanbenvari.hsefieldlog' versionCode='12' versionName='1.2.0'" outputs/apk-badging.txt
+          cp android/app/build/outputs/apk/debug/app-debug.apk outputs/HSE-FieldLog-Android-1.2.1.apk
+          "$build_tools/aapt" dump badging outputs/HSE-FieldLog-Android-1.2.1.apk | tee outputs/apk-badging.txt
+          grep -F "package: name='com.ehsanbenvari.hsefieldlog' versionCode='13' versionName='1.2.1'" outputs/apk-badging.txt
           grep -F "sdkVersion:'24'" outputs/apk-badging.txt
           grep -F "targetSdkVersion:'36'" outputs/apk-badging.txt
-          "$build_tools/apksigner" verify --verbose --print-certs outputs/HSE-FieldLog-Android-1.2.0.apk | tee outputs/apk-signature.txt
-          unzip -t outputs/HSE-FieldLog-Android-1.2.0.apk
-          unzip -l outputs/HSE-FieldLog-Android-1.2.0.apk | grep -F "assets/public/index.html"
-          sha256sum outputs/HSE-FieldLog-Android-1.2.0.apk | tee outputs/apk-sha256.txt
+          "$build_tools/apksigner" verify --verbose --print-certs outputs/HSE-FieldLog-Android-1.2.1.apk | tee outputs/apk-signature.txt
+          unzip -t outputs/HSE-FieldLog-Android-1.2.1.apk
+          unzip -l outputs/HSE-FieldLog-Android-1.2.1.apk | grep -F "assets/public/index.html"
+          sha256sum outputs/HSE-FieldLog-Android-1.2.1.apk | tee outputs/apk-sha256.txt
 
       - name: Upload verified Android package
         uses: actions/upload-artifact@v4
         with:
-          name: HSE-FieldLog-Android-1.2.0
+          name: HSE-FieldLog-Android-1.2.1
           path: outputs/
           if-no-files-found: error
           retention-days: 30

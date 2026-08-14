@@ -8,7 +8,7 @@ async function read(relativePath) {
   return readFile(new URL(relativePath, projectRoot), "utf8");
 }
 
-test("configures a private, offline Android package at version 1.2.0", async () => {
+test("configures a private, offline Android package at version 1.2.1", async () => {
   const [config, gradle, manifest, variables, filePaths] = await Promise.all([
     read("capacitor.config.ts"),
     read("android/app/build.gradle"),
@@ -23,8 +23,8 @@ test("configures a private, offline Android package at version 1.2.0", async () 
   assert.match(config, /webContentsDebuggingEnabled:\s*false/);
   assert.match(config, /allowMixedContent:\s*false/);
   assert.match(gradle, /applicationId\s+"com\.ehsanbenvari\.hsefieldlog"/);
-  assert.match(gradle, /versionCode\s+12/);
-  assert.match(gradle, /versionName\s+"1\.2\.0"/);
+  assert.match(gradle, /versionCode\s+13/);
+  assert.match(gradle, /versionName\s+"1\.2\.1"/);
   assert.match(variables, /minSdkVersion\s*=\s*24/);
   assert.match(variables, /targetSdkVersion\s*=\s*36/);
   assert.match(manifest, /android:allowBackup="false"/);
@@ -32,6 +32,27 @@ test("configures a private, offline Android package at version 1.2.0", async () 
   assert.doesNotMatch(manifest, /android\.permission\.INTERNET/);
   assert.match(filePaths, /<cache-path\s+name="shared_exports"\s+path="\."\s*\/>/);
   assert.doesNotMatch(filePaths, /external-path/);
+});
+
+test("routes Android management reports through the native print service", async () => {
+  const [source, activity, printer] = await Promise.all([
+    read("app/page.tsx"),
+    read("android/app/src/main/java/com/ehsanbenvari/hsefieldlog/MainActivity.java"),
+    read("android/app/src/main/java/com/ehsanbenvari/hsefieldlog/HsePrinterPlugin.java"),
+  ]);
+
+  assert.match(source, /registerPlugin<HsePrinterPlugin>\("HsePrinter"\)/);
+  assert.match(source, /Capacitor\.getPlatform\(\)\s*!==\s*"android"/);
+  assert.match(source, /await HsePrinter\.print/);
+  assert.match(source, /onClick=\{printManagementReport\}/);
+  assert.match(source, /window\.print\(\)/);
+  assert.doesNotMatch(source, /onClick=\{\(\) => window\.print\(\)\}/);
+  assert.match(activity, /registerPlugin\(HsePrinterPlugin\.class\)/);
+  assert.match(printer, /@CapacitorPlugin\(name = "HsePrinter"\)/);
+  assert.match(printer, /getActivity\(\)\.runOnUiThread/);
+  assert.match(printer, /Context\.PRINT_SERVICE/);
+  assert.match(printer, /createPrintDocumentAdapter\(jobName\)/);
+  assert.match(printer, /PrintAttributes\.MediaSize\.ISO_A4/);
 });
 
 test("packages native backup sharing with the complete Persian interface", async () => {
@@ -54,6 +75,8 @@ test("packages native backup sharing with the complete Persian interface", async
   assert.match(source, /Capacitor\.isNativePlatform\(\)/);
   assert.match(source, /Filesystem\.writeFile/);
   assert.match(source, /Share\.share/);
+  assert.match(javascript, /HsePrinter/);
+  assert.match(javascript, /ذخیره به‌صورت PDF/);
   assert.match(javascript, /Ehsan Benvari/);
   assert.match(javascript, /benvari\.e@yahoo\.com/);
   assert.match(javascript, /بازیابی انواع فایل پشتیبان/);
