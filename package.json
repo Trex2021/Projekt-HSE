@@ -1,7 +1,7 @@
 {
   "name": "hse-fieldlog",
   "version": "1.2.0",
-  "description": "Persian HSE field log for web and Windows",
+  "description": "Persian HSE field log for web, Windows, and Android",
   "private": true,
   "main": "desktop/electron/main.cjs",
   "author": {
@@ -22,16 +22,24 @@
     "desktop:start": "npm run desktop:build && bash scripts/sites-env.sh -- electron .",
     "desktop:check": "npm run desktop:build && node --check desktop/electron/main.cjs && node --check desktop/electron/preload.cjs && node --test tests/desktop-artifact.test.mjs",
     "desktop:package:win": "npm run desktop:check && bash scripts/sites-env.sh -- electron-builder --win portable --x64",
-    "test": "npm run typecheck && npm run build && npm run desktop:build && node --test tests/*.test.mjs",
+    "android:sync": "npm run desktop:build && cap sync android",
+    "android:check": "npm run android:sync && node --test tests/android-project.test.mjs",
+    "android:package": "npm run android:check && cd android && ./gradlew --no-daemon testDebugUnitTest assembleDebug",
+    "test": "npm run typecheck && npm run build && npm run desktop:build && cap sync android && node --test tests/*.test.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
-    "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next"
+    "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern android/app/src/main/assets/public"
   },
   "dependencies": {
+    "@capacitor/android": "8.5.0",
+    "@capacitor/core": "8.5.0",
+    "@capacitor/filesystem": "8.1.2",
+    "@capacitor/share": "8.0.1",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.0",
     "@cloudflare/vite-plugin": "1.52.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",

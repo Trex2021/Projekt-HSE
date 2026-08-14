@@ -1748,7 +1748,7 @@ td small {
   }
 
   .workspace {
-    padding: 0 18px 30px;
+    padding: max(0px, env(safe-area-inset-top)) 18px 30px;
   }
 
   .topbar {
@@ -1844,7 +1844,7 @@ td small {
 
 @media (max-width: 600px) {
   .workspace {
-    padding: 0 12px 25px;
+    padding: max(0px, env(safe-area-inset-top)) 12px 25px;
   }
 
   .topbar h1 {

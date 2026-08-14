@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { Capacitor } from "@capacitor/core";
+import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
 
 import {
   buildFindingsCsv,
@@ -239,7 +242,22 @@ const emptyFindingForm = () => ({
   responsible: "",
 });
 
-function downloadText(filename: string, text: string, type: string) {
+async function downloadText(filename: string, text: string, type: string) {
+  if (Capacitor.isNativePlatform()) {
+    const file = await Filesystem.writeFile({
+      path: filename,
+      data: text,
+      directory: Directory.Cache,
+      encoding: Encoding.UTF8,
+    });
+    await Share.share({
+      title: filename,
+      files: [file.uri],
+      dialogTitle: "ذخیره یا اشتراک‌گذاری فایل",
+    });
+    return "native" as const;
+  }
+
   const blob = new Blob([text], { type });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -249,6 +267,7 @@ function downloadText(filename: string, text: string, type: string) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+  return "browser" as const;
 }
 
 export default function Home() {
@@ -517,7 +536,25 @@ export default function Home() {
     notify(wasEditing ? "تغییرات بازرسی ذخیره شد." : "نتیجهٔ بازرسی ذخیره شد.");
   };
 
-  const exportBackup = () => {
+  const deliverExport = async (
+    filename: string,
+    content: string,
+    type: string,
+    browserMessage: string,
+  ) => {
+    try {
+      const destination = await downloadText(filename, content, type);
+      notify(
+        destination === "native"
+          ? "فایل آماده است؛ برنامه یا محل ذخیره را انتخاب کنید."
+          : browserMessage,
+      );
+    } catch {
+      notify("ذخیره یا اشتراک‌گذاری فایل انجام نشد.");
+    }
+  };
+
+  const exportBackup = async () => {
     const backup: BackupFile = {
       app: "HSE FieldLog",
       version: 1,
@@ -525,30 +562,30 @@ export default function Home() {
       findings,
       inspections,
     };
-    downloadText(
+    await deliverExport(
       `hse-fieldlog-backup-${toInputDate(new Date())}.json`,
       JSON.stringify(backup, null, 2),
       "application/json;charset=utf-8",
+      "فایل پشتیبان آماده شد.",
     );
-    notify("فایل پشتیبان آماده شد.");
   };
 
-  const exportCsv = () => {
-    downloadText(
+  const exportCsv = async () => {
+    await deliverExport(
       `hse-findings-${toInputDate(new Date())}.csv`,
       buildFindingsCsv(findings),
       "text/csv;charset=utf-8",
+      "گزارش CSV آماده شد.",
     );
-    notify("گزارش CSV آماده شد.");
   };
 
-  const exportInspectionsCsv = () => {
-    downloadText(
+  const exportInspectionsCsv = async () => {
+    await deliverExport(
       `hse-inspections-${toInputDate(new Date())}.csv`,
       buildInspectionsCsv(inspections),
       "text/csv;charset=utf-8",
+      "گزارش جزئیات بازرسی‌ها آماده شد.",
     );
-    notify("گزارش جزئیات بازرسی‌ها آماده شد.");
   };
 
   const importBackup = async (event: ChangeEvent<HTMLInputElement>) => {

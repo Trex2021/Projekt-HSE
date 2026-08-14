@@ -1,0 +1,89 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/android-apk.yml"
+      - "android/**"
+      - "app/**"
+      - "components/**"
+      - "desktop/**"
+      - "lib/**"
+      - "public/**"
+      - "scripts/**"
+      - "tests/**"
+      - "capacitor.config.ts"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Verify and package APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install Android SDK 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify application
+        run: |
+          npm run lint
+          npm test
+
+      - name: Build installable APK
+        run: npm run android:package
+
+      - name: Validate APK identity and signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_tools="$ANDROID_HOME/build-tools/36.0.0"
+          mkdir -p outputs
+          cp android/app/build/outputs/apk/debug/app-debug.apk outputs/HSE-FieldLog-Android-1.2.0.apk
+          "$build_tools/aapt" dump badging outputs/HSE-FieldLog-Android-1.2.0.apk | tee outputs/apk-badging.txt
+          grep -F "package: name='com.ehsanbenvari.hsefieldlog' versionCode='12' versionName='1.2.0'" outputs/apk-badging.txt
+          grep -F "sdkVersion:'24'" outputs/apk-badging.txt
+          grep -F "targetSdkVersion:'36'" outputs/apk-badging.txt
+          "$build_tools/apksigner" verify --verbose --print-certs outputs/HSE-FieldLog-Android-1.2.0.apk | tee outputs/apk-signature.txt
+          unzip -t outputs/HSE-FieldLog-Android-1.2.0.apk
+          unzip -l outputs/HSE-FieldLog-Android-1.2.0.apk | grep -F "assets/public/index.html"
+          sha256sum outputs/HSE-FieldLog-Android-1.2.0.apk | tee outputs/apk-sha256.txt
+
+      - name: Upload verified Android package
+        uses: actions/upload-artifact@v4
+        with:
+          name: HSE-FieldLog-Android-1.2.0
+          path: outputs/
+          if-no-files-found: error
+          retention-days: 30
