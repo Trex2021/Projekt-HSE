@@ -184,6 +184,45 @@ button {
   line-height: 1.8;
 }
 
+.license-credit {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 12px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: transparent;
+  color: #fff;
+  text-align: right;
+  transition: 160ms ease;
+}
+
+.license-credit:hover,
+.license-credit:focus-visible {
+  border-color: rgba(245, 181, 98, 0.6);
+  background: rgba(245, 181, 98, 0.08);
+  outline: none;
+}
+
+.license-credit span {
+  color: #f5b562;
+  font-family: Arial, sans-serif;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.license-credit strong {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+}
+
+.license-credit small {
+  color: rgba(255, 255, 255, 0.52);
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+}
+
 .workspace {
   min-width: 0;
   padding: 0 34px 42px;
@@ -1165,6 +1204,173 @@ td small {
   text-align: center;
 }
 
+.report-footer span {
+  display: block;
+  margin-top: 5px;
+  color: var(--green-800);
+  font-family: Arial, sans-serif;
+  font-size: 7px;
+}
+
+.about-page {
+  gap: 16px;
+}
+
+.license-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  align-items: center;
+  gap: 36px;
+  min-height: 250px;
+  padding: 38px 42px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 8% 20%, rgba(245, 181, 98, 0.18), transparent 32%),
+    var(--green-950);
+  color: #fff;
+}
+
+.license-copy .eyebrow {
+  color: #f5b562;
+}
+
+.license-copy h2 {
+  margin: 0;
+  font-size: clamp(25px, 3vw, 39px);
+}
+
+.license-copy > p:not(.eyebrow) {
+  max-width: 700px;
+  margin: 15px 0 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 11px;
+  line-height: 2.1;
+}
+
+.license-seal {
+  display: grid;
+  width: 170px;
+  height: 170px;
+  place-content: center;
+  justify-self: end;
+  border: 1px solid rgba(245, 181, 98, 0.55);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  text-align: center;
+  box-shadow: inset 0 0 0 9px rgba(245, 181, 98, 0.05);
+}
+
+.license-seal strong,
+.license-seal span {
+  display: block;
+}
+
+.license-seal strong {
+  color: #f5b562;
+  font-family: Arial, sans-serif;
+  font-size: 52px;
+  line-height: 1;
+}
+
+.license-seal span {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: Arial, sans-serif;
+  font-size: 7px;
+  letter-spacing: 0.17em;
+}
+
+.license-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.license-card {
+  min-height: 220px;
+  padding: 26px;
+}
+
+.license-card h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.license-card > p:not(.eyebrow) {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 2;
+}
+
+.owner-card {
+  border-top: 4px solid var(--green-700, #21664e);
+}
+
+.license-signature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-family: Arial, sans-serif;
+}
+
+.license-signature span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.license-signature strong {
+  font-size: 13px;
+}
+
+.license-tag {
+  display: inline-flex;
+  margin-top: 22px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: var(--green-100);
+  color: var(--green-800);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.contact-mail {
+  display: grid;
+  gap: 5px;
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid #d9e4dc;
+  border-radius: 13px;
+  background: #f4f8f5;
+  color: var(--green-900);
+  text-decoration: none;
+  transition: 160ms ease;
+}
+
+.contact-mail:hover,
+.contact-mail:focus-visible {
+  border-color: var(--green-600);
+  background: #ebf5ef;
+  outline: 3px solid rgba(28, 122, 86, 0.12);
+}
+
+.contact-mail span {
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.contact-mail strong {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.privacy-card .secondary-button {
+  margin-top: 22px;
+}
+
 .modal-backdrop {
   position: fixed;
   z-index: 100;
@@ -1340,7 +1546,7 @@ td small {
     bottom: 0;
     left: 0;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 3px;
     padding: 8px 10px max(8px, env(safe-area-inset-bottom));
     border-top: 1px solid #dbe2dc;
@@ -1400,6 +1606,18 @@ td small {
 
   .report-metrics {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .license-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .license-seal {
+    display: none;
+  }
+
+  .license-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1501,6 +1719,16 @@ td small {
     padding: 16px 12px;
   }
 
+  .license-hero {
+    min-height: auto;
+    padding: 27px 22px;
+  }
+
+  .license-card {
+    min-height: auto;
+    padding: 21px;
+  }
+
   .report-table-wrap {
     margin: 0 -4px;
   }
@@ -1516,6 +1744,10 @@ td small {
   .mobile-nav,
   .report-actions,
   .toast {
+    display: none !important;
+  }
+
+  .about-page {
     display: none !important;
   }
 

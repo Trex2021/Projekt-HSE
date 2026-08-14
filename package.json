@@ -1,7 +1,14 @@
 {
   "name": "hse-fieldlog",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Persian HSE field log for web and Windows",
   "private": true,
+  "main": "desktop/electron/main.cjs",
+  "author": {
+    "name": "Ehsan Benvari",
+    "email": "benvari.e@yahoo.com"
+  },
+  "license": "MIT",
   "engines": {
     "node": ">=22.13.0"
   },
@@ -11,7 +18,11 @@
     "build": "bash scripts/build-verified.sh",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "typecheck": "bash scripts/sites-env.sh -- tsc --noEmit --incremental false",
-    "test": "npm run typecheck && npm run build && node --test tests/*.test.mjs",
+    "desktop:build": "bash scripts/sites-env.sh -- vite build --config desktop/vite.config.ts",
+    "desktop:start": "npm run desktop:build && bash scripts/sites-env.sh -- electron .",
+    "desktop:check": "npm run desktop:build && node --check desktop/electron/main.cjs && node --check desktop/electron/preload.cjs && node --test tests/desktop-artifact.test.mjs",
+    "desktop:package:win": "npm run desktop:check && bash scripts/sites-env.sh -- electron-builder --win portable --x64",
+    "test": "npm run typecheck && npm run build && npm run desktop:build && node --test tests/*.test.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next"
   },
@@ -27,6 +38,8 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
     "@vitejs/plugin-rsc": "0.5.26",
+    "electron": "43.4.0",
+    "electron-builder": "26.15.3",
     "eslint": "9.39.4",
     "eslint-config-next": "16.3.1",
     "react-server-dom-webpack": "19.2.8",
@@ -36,5 +49,47 @@
     "wrangler": "4.123.0"
   },
   "type": "module",
-  "displayName": "HSE FieldLog"
+  "displayName": "HSE FieldLog",
+  "build": {
+    "appId": "com.ehsanbenvari.hsefieldlog",
+    "productName": "HSE FieldLog",
+    "copyright": "Copyright © 2026 Ehsan Benvari",
+    "asar": true,
+    "npmRebuild": false,
+    "electronLanguages": [
+      "fa",
+      "en-US"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "desktop/assets"
+    },
+    "files": [
+      "desktop/dist-renderer/**/*",
+      "desktop/electron/**/*",
+      "desktop/assets/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "LICENSE",
+        "to": "LICENSE.txt"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "desktop/assets/icon.ico",
+      "artifactName": "HSE-FieldLog-Portable-${version}.${ext}",
+      "legalTrademarks": "Ehsan Benvari",
+      "signExecutable": false
+    }
+  }
 }

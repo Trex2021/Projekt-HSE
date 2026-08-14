@@ -2,6 +2,8 @@
 
 HSE FieldLog is a Persian, mobile-first field safety log for construction sites. It runs as a local-first Progressive Web App and keeps operational records on the current device unless the user explicitly exports them.
 
+Copyright and contact: **Ehsan Benvari** · [benvari.e@yahoo.com](mailto:benvari.e@yahoo.com)
+
 ## Features
 
 - Record safety findings with contractor, location, owner, deadline, and status
@@ -13,6 +15,7 @@ HSE FieldLog is a Persian, mobile-first field safety log for construction sites.
 - Export and restore a versioned JSON backup
 - Install as a PWA and use previously visited screens offline
 - Responsive Persian RTL interface
+- Native Windows desktop build with an offline local renderer
 
 ## Privacy model
 
@@ -24,9 +27,18 @@ Records are stored in browser `localStorage`. No real worker names, photos, cont
 npm ci
 npm test
 npm run lint
+npm run desktop:check
 ```
 
 The test suite runs a production build, verifies the deployable worker response, and tests FMEA, deadline, summary, and CSV logic.
+
+## Windows portable app
+
+```bash
+npm run desktop:package:win
+```
+
+The Windows package uses a hardened Electron shell with context isolation, sandboxing, disabled Node.js integration, a strict content security policy, and mail links restricted to the published support address. The generated portable executable is placed in `release/` and runs without installation.
 
 ## Risk scoring
 

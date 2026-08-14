@@ -1,6 +1,7 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 
 import {
   buildFindingsCsv,
@@ -12,7 +13,7 @@ import {
   type FindingStatus,
 } from "@/lib/hse-core";
 
-type Section = "dashboard" | "findings" | "checklists" | "reports";
+type Section = "dashboard" | "findings" | "checklists" | "reports" | "about";
 type ChecklistResult = "pass" | "fail" | "na";
 
 interface Finding {
@@ -136,6 +137,7 @@ const NAV_ITEMS: Array<{ id: Section; label: string; eyebrow: string }> = [
   { id: "findings", label: "موارد ایمنی", eyebrow: "ثبت و پیگیری" },
   { id: "checklists", label: "چک‌لیست‌ها", eyebrow: "بازرسی میدانی" },
   { id: "reports", label: "گزارش‌ها", eyebrow: "خروجی و پشتیبان" },
+  { id: "about", label: "مجوز و ارتباط", eyebrow: "Ehsan Benvari" },
 ];
 
 const makeId = () => {
@@ -565,6 +567,17 @@ export default function Home() {
             <p>اطلاعات روی همین دستگاه نگهداری می‌شود.</p>
           </div>
         </div>
+
+        <button
+          className="license-credit"
+          type="button"
+          onClick={() => setActiveSection("about")}
+          aria-label="مشاهده اطلاعات مجوز و راه ارتباطی"
+        >
+          <span>LICENSE &amp; CONTACT</span>
+          <strong>Ehsan Benvari</strong>
+          <small>benvari.e@yahoo.com</small>
+        </button>
       </aside>
 
       <section className="workspace">
@@ -1005,7 +1018,80 @@ export default function Home() {
                 </table>
                 {!findings.length ? <div className="empty-state">داده‌ای برای گزارش وجود ندارد.</div> : null}
               </div>
-              <footer className="report-footer">این گزارش از داده‌های ذخیره‌شده روی دستگاه تهیه شده است.</footer>
+              <footer className="report-footer">
+                این گزارش از داده‌های ذخیره‌شده روی دستگاه تهیه شده است.
+                <span>HSE FieldLog · Ehsan Benvari · benvari.e@yahoo.com</span>
+              </footer>
+            </section>
+          </div>
+        ) : null}
+
+        {loaded && activeSection === "about" ? (
+          <div className="section-stack about-page">
+            <section className="license-hero panel">
+              <div className="license-copy">
+                <p className="eyebrow">LICENSE &amp; CONTACT</p>
+                <h2>مجوز نرم‌افزار و راه ارتباطی</h2>
+                <p>
+                  HSE FieldLog برای ثبت و پیگیری ایمنی کارگاه طراحی شده و نام
+                  دارندهٔ حقوق اثر باید همراه نسخه‌های نرم‌افزار باقی بماند.
+                </p>
+              </div>
+              <div className="license-seal" aria-label="نشان Ehsan Benvari">
+                <strong>EB</strong>
+                <span>HSE · SOFTWARE</span>
+              </div>
+            </section>
+
+            <section className="license-grid">
+              <article className="license-card panel owner-card">
+                <p className="eyebrow">دارندهٔ مجوز و توسعه‌دهنده</p>
+                <h3>Ehsan Benvari</h3>
+                <p>
+                  طراحی محصول، ساخت نسخهٔ وب و ویندوز و نگهداری اطلاعات تماس
+                  این نرم‌افزار با نام فوق انجام شده است.
+                </p>
+                <div className="license-signature">
+                  <span>© 2026</span>
+                  <strong>Ehsan Benvari</strong>
+                </div>
+              </article>
+
+              <article className="license-card panel">
+                <p className="eyebrow">مجوز استفاده</p>
+                <h3>MIT License</h3>
+                <p>
+                  استفاده، کپی و تغییر نرم‌افزار طبق شرایط مجوز MIT مجاز است؛
+                  اطلاعیهٔ کپی‌رایت و متن مجوز باید در نسخه‌های توزیع‌شده حفظ شود.
+                </p>
+                <span className="license-tag">نسخهٔ ۱.۰ · وب و ویندوز</span>
+              </article>
+
+              <article className="license-card panel contact-card">
+                <p className="eyebrow">ارتباط و همکاری</p>
+                <h3>با توسعه‌دهنده در ارتباط باشید</h3>
+                <p>
+                  برای همکاری، پیشنهاد قابلیت جدید، گزارش اشکال یا استفادهٔ
+                  سازمانی از طریق ایمیل زیر پیام ارسال کنید.
+                </p>
+                <a className="contact-mail" href="mailto:benvari.e@yahoo.com">
+                  <span>ارسال ایمیل به</span>
+                  <strong dir="ltr">benvari.e@yahoo.com</strong>
+                </a>
+              </article>
+
+              <article className="license-card panel privacy-card">
+                <p className="eyebrow">حریم خصوصی</p>
+                <h3>اطلاعات در اختیار شماست</h3>
+                <p>
+                  داده‌های نسخهٔ ویندوز و وب روی همان دستگاه ذخیره می‌شوند و
+                  به‌صورت خودکار بین دستگاه‌ها همگام نمی‌شوند. برای جابه‌جایی
+                  اطلاعات از فایل پشتیبان استفاده کنید.
+                </p>
+                <button className="secondary-button" onClick={() => setActiveSection("reports")}>
+                  رفتن به پشتیبان‌گیری
+                </button>
+              </article>
             </section>
           </div>
         ) : null}
