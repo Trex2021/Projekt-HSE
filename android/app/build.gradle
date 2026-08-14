@@ -3,6 +3,9 @@ apply plugin: 'com.android.application'
 android {
     namespace = "com.ehsanbenvari.hsefieldlog"
     compileSdk = rootProject.ext.compileSdkVersion
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId "com.ehsanbenvari.hsefieldlog"
         minSdkVersion rootProject.ext.minSdkVersion
