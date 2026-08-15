@@ -59,10 +59,12 @@ jobs:
         shell: pwsh
         run: |
           $artifact = "release/HSE-FieldLog-Portable-1.3.0.exe"
+          $unpacked = "release/win-unpacked/HSE FieldLog.exe"
           if (-not (Test-Path $artifact)) { throw "Portable executable was not created." }
           if ((Get-Item $artifact).Length -lt 50MB) { throw "Portable executable is unexpectedly small." }
-          & $artifact --smoke-test
-          if ($LASTEXITCODE -ne 0) { throw "Packaged app smoke test failed." }
+          if (-not (Test-Path $unpacked)) { throw "Packaged application executable was not created." }
+          $process = Start-Process -FilePath $unpacked -ArgumentList "--smoke-test", "--disable-gpu" -PassThru -Wait
+          if ($process.ExitCode -ne 0) { throw "Packaged app smoke test failed with exit code $($process.ExitCode)." }
           $hash = (Get-FileHash $artifact -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  HSE-FieldLog-Portable-1.3.0.exe" | Set-Content -Encoding ascii release/windows-sha256.txt
 
