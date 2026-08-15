@@ -1,0 +1,77 @@
+name: Build Windows Portable
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - "agent/**"
+    paths:
+      - ".github/workflows/windows-portable.yml"
+      - "app/**"
+      - "build/**"
+      - "desktop/**"
+      - "lib/**"
+      - "public/**"
+      - "scripts/**"
+      - "tests/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-portable-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Verify and package Windows x64
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify source and renderer
+        shell: bash
+        run: |
+          npm run typecheck
+          npm run lint
+          npm run desktop:check
+
+      - name: Build portable executable
+        run: npm run desktop:package:win
+
+      - name: Smoke-test and hash executable
+        shell: pwsh
+        run: |
+          $artifact = "release/HSE-FieldLog-Portable-1.3.0.exe"
+          if (-not (Test-Path $artifact)) { throw "Portable executable was not created." }
+          if ((Get-Item $artifact).Length -lt 50MB) { throw "Portable executable is unexpectedly small." }
+          & $artifact --smoke-test
+          if ($LASTEXITCODE -ne 0) { throw "Packaged app smoke test failed." }
+          $hash = (Get-FileHash $artifact -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  HSE-FieldLog-Portable-1.3.0.exe" | Set-Content -Encoding ascii release/windows-sha256.txt
+
+      - name: Upload verified Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: HSE-FieldLog-Windows-1.3.0
+          path: |
+            release/HSE-FieldLog-Portable-1.3.0.exe
+            release/windows-sha256.txt
+          if-no-files-found: error
+          retention-days: 30

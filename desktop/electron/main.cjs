@@ -5,6 +5,7 @@ const { app, BrowserWindow, Menu, shell } = require("electron");
 
 const APP_ID = "com.ehsanbenvari.hsefieldlog";
 const CONTACT_EMAIL = "benvari.e@yahoo.com";
+const IS_SMOKE_TEST = process.argv.includes("--smoke-test");
 
 function isApprovedMailLink(value) {
   try {
@@ -63,7 +64,22 @@ function createWindow() {
     event.preventDefault();
   });
 
-  window.once("ready-to-show", () => window.show());
+  window.webContents.once("did-finish-load", () => {
+    if (!IS_SMOKE_TEST) return;
+    console.log("HSE FieldLog renderer loaded successfully.");
+    app.quit();
+  });
+
+  window.webContents.once("did-fail-load", (_event, errorCode, errorDescription) => {
+    if (!IS_SMOKE_TEST) return;
+    console.error(`HSE FieldLog renderer failed: ${errorCode} ${errorDescription}`);
+    process.exitCode = 1;
+    app.quit();
+  });
+
+  window.once("ready-to-show", () => {
+    if (!IS_SMOKE_TEST) window.show();
+  });
   void window.loadFile(
     path.join(__dirname, "..", "dist-renderer", "index.html"),
   );

@@ -28,6 +28,15 @@ import {
   type ChecklistResult,
   type Inspection,
 } from "@/lib/hse-inspections";
+import {
+  CHECKLIST_CONTROL_COUNT,
+  CHECKLIST_SECTORS,
+  CHECKLIST_TEMPLATE_COUNT,
+  CHECKLISTS,
+  filterChecklists,
+  getChecklistSector,
+  type ChecklistSectorId,
+} from "@/lib/hse-checklists";
 
 type Section = "dashboard" | "findings" | "checklists" | "reports" | "about";
 
@@ -60,61 +69,7 @@ const CATEGORIES = [
   "سایر",
 ];
 
-const CHECKLISTS = [
-  {
-    id: "ppe",
-    name: "تجهیزات حفاظت فردی",
-    description: "کنترل PPE متناسب با نوع فعالیت",
-    items: [
-      "کلاه ایمنی سالم و دارای بند مناسب است",
-      "کفش ایمنی متناسب با فعالیت استفاده می‌شود",
-      "دستکش سالم و متناسب با خطر در دسترس است",
-      "عینک یا شیلد محافظ در فعالیت‌های لازم استفاده می‌شود",
-      "لباس کار سالم و بدون بخش آزاد و خطرناک است",
-    ],
-  },
-  {
-    id: "electrical",
-    name: "ایمنی برق موقت",
-    description: "تابلو، کابل و اتصالات برق کارگاهی",
-    items: [
-      "تابلو برق درب، قفل و علائم هشدار مناسب دارد",
-      "محافظ جان و اتصال زمین کنترل شده است",
-      "تمام کابل‌ها دارای دوشاخه و پریز صنعتی سالم هستند",
-      "کابل آسیب‌دیده، لخت یا وصله غیراستاندارد وجود ندارد",
-      "کابل‌ها از آب، لبه تیز و مسیر تردد محافظت شده‌اند",
-      "دسترسی به تابلو برق مسدود نیست",
-    ],
-  },
-  {
-    id: "scaffold",
-    name: "حفاظ و داربست متحرک",
-    description: "کنترل پیش از استفاده از داربست",
-    items: [
-      "سطح استقرار محکم، تراز و بدون مانع است",
-      "چرخ‌ها قفل و مهاربندی‌ها کامل هستند",
-      "کف سکوی کار کامل و بدون شکستگی است",
-      "نرده میانی، نرده بالایی و پاخور نصب شده‌اند",
-      "دسترسی ایمن از داخل داربست فراهم است",
-      "داربست معیوب با برچسب و مانع از سرویس خارج شده است",
-    ],
-  },
-  {
-    id: "hose-reel",
-    name: "هوزریل آتش‌نشانی",
-    description: "آمادگی عملیاتی هوزریل و مسیر دسترسی",
-    items: [
-      "مسیر دسترسی و فضای مقابل هوزریل آزاد است",
-      "شلنگ فاقد پارگی، پوسیدگی یا له‌شدگی است",
-      "قرقره روان و بدون گیرکردگی حرکت می‌کند",
-      "شیر ورودی سالم و قابل باز و بسته شدن است",
-      "نازل سالم، متصل و قابل تنظیم است",
-      "علائم شناسایی و دستورالعمل استفاده قابل مشاهده است",
-    ],
-  },
-] as const;
-
-type ChecklistId = (typeof CHECKLISTS)[number]["id"];
+type ChecklistId = string;
 
 const STATUS_LABELS: Record<FindingStatus, string> = {
   open: "باز",
@@ -164,6 +119,8 @@ const formatDate = (value: string) => {
 
 const createDemoData = (): { findings: Finding[]; inspections: Inspection[] } => {
   const now = new Date().toISOString();
+  const hoseReelChecklist =
+    CHECKLISTS.find((item) => item.id === "hose-reel") ?? CHECKLISTS[0];
   return {
     findings: [
       {
@@ -225,7 +182,7 @@ const createDemoData = (): { findings: Finding[]; inspections: Inspection[] } =>
         location: "طبقه ۳-، انبار نمونه",
         inspector: "کارشناس HSE نمونه",
         notes: "این بازرسی صرفاً دادهٔ نمایشی است.",
-        items: CHECKLISTS[3].items.map((label, index) => ({
+        items: hoseReelChecklist.items.map((label, index) => ({
           label,
           result: index === 1 ? "fail" : "pass",
         })),
@@ -288,6 +245,10 @@ export default function Home() {
   const [selectedChecklist, setSelectedChecklist] = useState<ChecklistId>(
     CHECKLISTS[0].id,
   );
+  const [checklistQuery, setChecklistQuery] = useState("");
+  const [checklistSector, setChecklistSector] = useState<
+    "all" | ChecklistSectorId
+  >("all");
   const [checklistLocation, setChecklistLocation] = useState("");
   const [inspector, setInspector] = useState("");
   const [checklistNotes, setChecklistNotes] = useState("");
@@ -361,6 +322,21 @@ export default function Home() {
   const summary = useMemo(() => summarizeFindings(findings), [findings]);
   const currentChecklist =
     CHECKLISTS.find((item) => item.id === selectedChecklist) ?? CHECKLISTS[0];
+  const currentChecklistSector = getChecklistSector(currentChecklist.sector);
+  const filteredChecklists = useMemo(
+    () => filterChecklists(CHECKLISTS, checklistQuery, checklistSector),
+    [checklistQuery, checklistSector],
+  );
+  const groupedChecklists = useMemo(
+    () =>
+      CHECKLIST_SECTORS.map((sector) => ({
+        sector,
+        templates: filteredChecklists.filter(
+          (template) => template.sector === sector.id,
+        ),
+      })).filter((group) => group.templates.length > 0),
+    [filteredChecklists],
+  );
   const formRpn = calculateRpn(
     findingForm.severity,
     findingForm.occurrence,
@@ -454,6 +430,14 @@ export default function Home() {
     }
     setSelectedChecklist(templateId);
     resetInspectionForm(true);
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      window.requestAnimationFrame(() => {
+        document.getElementById("inspection-form")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    }
   };
 
   const editInspection = (inspection: Inspection) => {
@@ -462,6 +446,8 @@ export default function Home() {
       notify("الگوی این بازرسی دیگر در برنامه وجود ندارد و قابل ویرایش نیست.");
       return;
     }
+    setChecklistQuery("");
+    setChecklistSector(template.sector);
     setSelectedChecklist(template.id);
     setChecklistLocation(inspection.location);
     setInspector(inspection.inspector);
@@ -963,22 +949,110 @@ export default function Home() {
         {loaded && activeSection === "checklists" ? (
           <div className="checklist-layout">
             <section className="checklist-picker panel">
-              <div className="panel-heading">
-                <div><p className="eyebrow">الگوی بازرسی</p><h2>انتخاب چک‌لیست</h2></div>
+              <div className="panel-heading catalog-heading">
+                <div>
+                  <p className="eyebrow">کتابخانه جامع ایمنی</p>
+                  <h2>انتخاب چک‌لیست</h2>
+                </div>
+                <span className="catalog-total">
+                  {CHECKLIST_TEMPLATE_COUNT.toLocaleString("fa-IR")} الگو
+                </span>
+              </div>
+              <p className="catalog-intro">
+                {CHECKLIST_SECTORS.length.toLocaleString("fa-IR")} حوزه و {CHECKLIST_CONTROL_COUNT.toLocaleString("fa-IR")} کنترل؛ حوزه را انتخاب کنید یا نام کار و تجهیز را بنویسید.
+              </p>
+              <div className="checklist-catalog-controls">
+                <label className="search-field checklist-search">
+                  <span>جست‌وجوی فعالیت یا تجهیز</span>
+                  <input
+                    type="search"
+                    value={checklistQuery}
+                    onChange={(event) => setChecklistQuery(event.target.value)}
+                    placeholder="مثلاً لیفتراک، جوشکاری، برق، آزمایشگاه…"
+                    autoComplete="off"
+                  />
+                </label>
+                <label className="select-field checklist-sector-select">
+                  <span>حوزهٔ فعالیت</span>
+                  <select
+                    value={checklistSector}
+                    onChange={(event) =>
+                      setChecklistSector(
+                        event.target.value as "all" | ChecklistSectorId,
+                      )
+                    }
+                  >
+                    <option value="all">همهٔ حوزه‌ها</option>
+                    {CHECKLIST_SECTORS.map((sector) => (
+                      <option key={sector.id} value={sector.id}>
+                        {sector.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="catalog-result-row" aria-live="polite">
+                  <span>
+                    {filteredChecklists.length.toLocaleString("fa-IR")} چک‌لیست پیدا شد
+                  </span>
+                  {checklistQuery || checklistSector !== "all" ? (
+                    <button
+                      className="text-button"
+                      type="button"
+                      onClick={() => {
+                        setChecklistQuery("");
+                        setChecklistSector("all");
+                      }}
+                    >
+                      پاک‌کردن فیلتر
+                    </button>
+                  ) : null}
+                </div>
               </div>
               <div className="template-list">
-                {CHECKLISTS.map((template) => (
-                  <button
-                    className={template.id === selectedChecklist ? "template-card selected" : "template-card"}
-                    key={template.id}
-                    type="button"
-                    onClick={() => selectChecklistTemplate(template.id)}
-                  >
-                    <strong>{template.name}</strong>
-                    <span>{template.description}</span>
-                    <small>{template.items.length.toLocaleString("fa-IR")} کنترل</small>
-                  </button>
+                {groupedChecklists.map(({ sector, templates }) => (
+                  <section className="template-group" key={sector.id}>
+                    <div className="template-group-heading">
+                      <div>
+                        <strong>{sector.name}</strong>
+                        <span>{sector.description}</span>
+                      </div>
+                      <small>{templates.length.toLocaleString("fa-IR")}</small>
+                    </div>
+                    <div className="template-group-items">
+                      {templates.map((template) => (
+                        <button
+                          className={template.id === selectedChecklist ? "template-card selected" : "template-card"}
+                          key={template.id}
+                          type="button"
+                          onClick={() => selectChecklistTemplate(template.id)}
+                          aria-pressed={template.id === selectedChecklist}
+                        >
+                          <strong>{template.name}</strong>
+                          <span>{template.description}</span>
+                          <small>
+                            {template.activity} · {template.items.length.toLocaleString("fa-IR")} کنترل
+                          </small>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
                 ))}
+                {!filteredChecklists.length ? (
+                  <div className="empty-state catalog-empty">
+                    <strong>چک‌لیستی با این عبارت پیدا نشد.</strong>
+                    <span>نام تجهیز، فعالیت یا خطر را کوتاه‌تر بنویسید.</span>
+                    <button
+                      className="secondary-button compact-button"
+                      type="button"
+                      onClick={() => {
+                        setChecklistQuery("");
+                        setChecklistSector("all");
+                      }}
+                    >
+                      نمایش همهٔ چک‌لیست‌ها
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </section>
 
@@ -993,6 +1067,9 @@ export default function Home() {
                     {editingInspectionId ? "ویرایش سابقه" : "فرم میدانی"}
                   </p>
                   <h2>{currentChecklist.name}</h2>
+                  <p className="current-template-context">
+                    {currentChecklistSector.name} · {currentChecklist.activity}
+                  </p>
                 </div>
                 <span className="completion-chip">
                   {Object.keys(checklistResults).length.toLocaleString("fa-IR")} از {currentChecklist.items.length.toLocaleString("fa-IR")}
@@ -1014,6 +1091,13 @@ export default function Home() {
                   </button>
                 </div>
               ) : null}
+
+              <div className="checklist-scope-note">
+                <strong>راهنمای کنترل میدانی</strong>
+                <span>
+                  ارزیابی ریسک اختصاصی محل، دستورالعمل سازنده و الزامات قانونی سازمان بر این الگوی عمومی مقدم هستند.
+                </span>
+              </div>
 
               <div className="form-grid two-columns">
                 <label>

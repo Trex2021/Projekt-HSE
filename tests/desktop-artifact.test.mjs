@@ -33,6 +33,10 @@ test("builds an offline Windows renderer with license and contact details", asyn
   assert.match(assets, /بازیابی انواع فایل پشتیبان/);
   assert.match(assets, /نوع CSV شناخته نشد/);
   assert.match(assets, /نامرتبط/);
+  assert.match(assets, /کتابخانه جامع ایمنی/);
+  assert.match(assets, /لیفتراک/);
+  assert.match(assets, /نفت، گاز و پتروشیمی/);
+  assert.match(assets, /ارزیابی ریسک اختصاصی محل/);
 });
 
 test("uses hardened Electron window settings", async () => {
@@ -47,4 +51,7 @@ test("uses hardened Electron window settings", async () => {
   assert.match(main, /devTools:\s*false/);
   assert.match(main, /setPermissionRequestHandler/);
   assert.match(main, /benvari\.e@yahoo\.com/);
+  assert.match(main, /--smoke-test/);
+  assert.match(main, /did-finish-load/);
+  assert.match(main, /did-fail-load/);
 });

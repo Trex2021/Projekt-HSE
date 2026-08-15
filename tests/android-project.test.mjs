@@ -8,7 +8,7 @@ async function read(relativePath) {
   return readFile(new URL(relativePath, projectRoot), "utf8");
 }
 
-test("configures a private, offline Android package at version 1.2.1", async () => {
+test("configures a private, offline Android package at version 1.3.0", async () => {
   const [config, gradle, manifest, variables, filePaths] = await Promise.all([
     read("capacitor.config.ts"),
     read("android/app/build.gradle"),
@@ -23,8 +23,8 @@ test("configures a private, offline Android package at version 1.2.1", async () 
   assert.match(config, /webContentsDebuggingEnabled:\s*false/);
   assert.match(config, /allowMixedContent:\s*false/);
   assert.match(gradle, /applicationId\s+"com\.ehsanbenvari\.hsefieldlog"/);
-  assert.match(gradle, /versionCode\s+13/);
-  assert.match(gradle, /versionName\s+"1\.2\.1"/);
+  assert.match(gradle, /versionCode\s+14/);
+  assert.match(gradle, /versionName\s+"1\.3\.0"/);
   assert.match(variables, /minSdkVersion\s*=\s*24/);
   assert.match(variables, /targetSdkVersion\s*=\s*36/);
   assert.match(manifest, /android:allowBackup="false"/);
@@ -83,6 +83,10 @@ test("packages native backup sharing with the complete Persian interface", async
   assert.match(javascript, /ذخیره یا اشتراک‌گذاری فایل/);
   assert.match(javascript, /ذخیرهٔ تغییرات بازرسی/);
   assert.match(javascript, /نامرتبط/);
+  assert.match(javascript, /کتابخانه جامع ایمنی/);
+  assert.match(javascript, /لیفتراک/);
+  assert.match(javascript, /نفت، گاز و پتروشیمی/);
+  assert.match(javascript, /ارزیابی ریسک اختصاصی محل/);
 });
 
 test("uses branded launcher and splash artwork", async () => {

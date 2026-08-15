@@ -8,7 +8,8 @@ Copyright and contact: **Ehsan Benvari** · [benvari.e@yahoo.com](mailto:benvari
 
 - Record safety findings with contractor, location, owner, deadline, and status
 - Calculate FMEA Risk Priority Number (`Severity × Occurrence × Detection`)
-- Run built-in PPE, temporary electrical, mobile scaffold, and hose-reel checklists
+- Search and filter 124 built-in HSE checklists with 743 field controls across 14 activity sectors
+- Cover construction, manufacturing, oil and gas, electricity, lifting, fire, chemicals, healthcare, agriculture, mining, marine, waste, office, and public-service work
 - Track inspection nonconformities
 - Review every saved checklist response, edit prior inspections, or delete one or all inspection records
 - Include complete checklist-item details in printable management reports and inspection CSV exports
@@ -49,6 +50,10 @@ The Windows package uses a hardened Electron shell with context isolation, sandb
 - High: RPN 75 or above
 
 These thresholds are application defaults and should be reviewed against the organization's approved HSE risk procedure before operational adoption.
+
+## Checklist scope and references
+
+The built-in library is a practical field aid, not a substitute for a site-specific risk assessment, manufacturer instructions, competent-person review, or applicable legal requirements. Its taxonomy and control themes were informed by official occupational-safety resources, including the [OSHA General Industry standards](https://www.osha.gov/laws-regs/regulations/standardnumber/1910), [OSHA Construction guidance](https://www.osha.gov/complianceassistance/quickstarts/construction), the [NIOSH Hierarchy of Controls](https://www.cdc.gov/niosh/hierarchy-of-controls/about/index.html), [UK HSE industry and topic guidance](https://www.hse.gov.uk/), and the [ILO construction safety and health code](https://www.ilo.org/resource/other/safety-and-health-construction-revised-edition).
 
 ## License
 
