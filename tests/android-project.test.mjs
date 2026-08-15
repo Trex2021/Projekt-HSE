@@ -9,12 +9,13 @@ async function read(relativePath) {
 }
 
 test("configures a private, offline Android package at version 1.3.0", async () => {
-  const [config, gradle, manifest, variables, filePaths] = await Promise.all([
+  const [config, gradle, manifest, variables, filePaths, unitTest] = await Promise.all([
     read("capacitor.config.ts"),
     read("android/app/build.gradle"),
     read("android/app/src/main/AndroidManifest.xml"),
     read("android/variables.gradle"),
     read("android/app/src/main/res/xml/file_paths.xml"),
+    read("android/app/src/test/java/com/ehsanbenvari/hsefieldlog/BasicUnitTest.java"),
   ]);
 
   assert.match(config, /appId:\s*"com\.ehsanbenvari\.hsefieldlog"/);
@@ -25,6 +26,8 @@ test("configures a private, offline Android package at version 1.3.0", async () 
   assert.match(gradle, /applicationId\s+"com\.ehsanbenvari\.hsefieldlog"/);
   assert.match(gradle, /versionCode\s+14/);
   assert.match(gradle, /versionName\s+"1\.3\.0"/);
+  assert.match(unitTest, /assertEquals\("1\.3\.0", BuildConfig\.VERSION_NAME\)/);
+  assert.match(unitTest, /assertEquals\(14, BuildConfig\.VERSION_CODE\)/);
   assert.match(variables, /minSdkVersion\s*=\s*24/);
   assert.match(variables, /targetSdkVersion\s*=\s*36/);
   assert.match(manifest, /android:allowBackup="false"/);

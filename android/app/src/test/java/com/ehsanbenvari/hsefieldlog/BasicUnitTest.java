@@ -8,6 +8,6 @@ public class BasicUnitTest {
     @Test
     public void versionLabelMatchesPackageVersion() {
         assertEquals("1.3.0", BuildConfig.VERSION_NAME);
-        assertEquals(13, BuildConfig.VERSION_CODE);
+        assertEquals(14, BuildConfig.VERSION_CODE);
     }
 }
