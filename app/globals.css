@@ -927,10 +927,10 @@ textarea {
 
 .checklist-layout {
   display: grid;
-  grid-template-columns: minmax(210px, 0.6fr) minmax(480px, 1.45fr) minmax(240px, 0.75fr);
+  grid-template-columns: minmax(290px, 0.82fr) minmax(480px, 1.45fr) minmax(240px, 0.73fr);
   gap: 16px;
   width: 100%;
-  max-width: 1460px;
+  max-width: 1540px;
   margin: 0 auto;
   align-items: start;
 }
@@ -943,6 +943,132 @@ textarea {
 .history-list {
   display: grid;
   gap: 9px;
+}
+
+.checklist-picker {
+  position: sticky;
+  top: 16px;
+}
+
+.catalog-heading {
+  align-items: flex-start;
+}
+
+.catalog-total {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #edf5f0;
+  color: var(--green-800);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.catalog-intro {
+  margin: -2px 0 14px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.85;
+}
+
+.checklist-catalog-controls {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 13px;
+  padding: 12px;
+  border: 1px solid #e1e8e3;
+  border-radius: 13px;
+  background: #f7faf8;
+}
+
+.checklist-search,
+.checklist-sector-select {
+  display: grid;
+  gap: 6px;
+}
+
+.checklist-search input,
+.checklist-sector-select select {
+  min-height: 39px;
+  background: #fff;
+  font-size: 10px;
+}
+
+.catalog-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.catalog-result-row .text-button {
+  flex: 0 0 auto;
+  font-size: 8px;
+}
+
+.template-list {
+  max-height: min(62vh, 720px);
+  padding-left: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #b9c8c0 transparent;
+  scrollbar-width: thin;
+}
+
+.template-group {
+  display: grid;
+  gap: 8px;
+}
+
+.template-group + .template-group {
+  margin-top: 7px;
+  padding-top: 14px;
+  border-top: 1px solid #e6ebe7;
+}
+
+.template-group-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.template-group-heading strong,
+.template-group-heading span {
+  display: block;
+}
+
+.template-group-heading strong {
+  font-size: 9px;
+}
+
+.template-group-heading span {
+  margin-top: 3px;
+  color: #7a8781;
+  font-size: 7px;
+  line-height: 1.6;
+}
+
+.template-group-heading small {
+  display: grid;
+  flex: 0 0 auto;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 8px;
+  background: #eef3ef;
+  color: var(--green-800);
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.template-group-items {
+  display: grid;
+  gap: 8px;
 }
 
 .template-card {
@@ -968,7 +1094,47 @@ textarea {
 
 .template-card strong { font-size: 10px; }
 .template-card span { color: var(--muted); font-size: 8px; line-height: 1.7; }
-.template-card small { color: var(--green-600); font-size: 8px; }
+.template-card small { color: var(--green-600); font-size: 7px; line-height: 1.6; }
+
+.catalog-empty {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.catalog-empty strong,
+.catalog-empty span {
+  display: block;
+}
+
+.current-template-context {
+  margin: 6px 0 0;
+  color: var(--green-600);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.checklist-scope-note {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 15px;
+  padding: 11px 13px;
+  border-right: 3px solid #e3a04c;
+  border-radius: 10px;
+  background: #fff8ed;
+}
+
+.checklist-scope-note strong {
+  color: #8b5919;
+  font-size: 8px;
+}
+
+.checklist-scope-note span {
+  color: #746650;
+  font-size: 8px;
+  line-height: 1.75;
+}
 
 .completion-chip {
   background: #edf5f0;
@@ -1713,7 +1879,7 @@ td small {
 
 @media (max-width: 1180px) {
   .checklist-layout {
-    grid-template-columns: minmax(210px, 0.55fr) minmax(450px, 1.45fr);
+    grid-template-columns: minmax(270px, 0.65fr) minmax(450px, 1.35fr);
   }
 
   .inspection-history {
@@ -1803,6 +1969,14 @@ td small {
   .dashboard-grid,
   .checklist-layout {
     grid-template-columns: 1fr;
+  }
+
+  .checklist-picker {
+    position: static;
+  }
+
+  .template-list {
+    max-height: 52vh;
   }
 
   .inspection-history {
@@ -1937,6 +2111,10 @@ td small {
   .inspection-submit-row,
   .history-item-head {
     display: grid;
+  }
+
+  .template-list {
+    max-height: 50vh;
   }
 
   .history-result {

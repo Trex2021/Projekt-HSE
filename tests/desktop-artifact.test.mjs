@@ -33,13 +33,17 @@ test("builds an offline Windows renderer with license and contact details", asyn
   assert.match(assets, /بازیابی انواع فایل پشتیبان/);
   assert.match(assets, /نوع CSV شناخته نشد/);
   assert.match(assets, /نامرتبط/);
+  assert.match(assets, /کتابخانه جامع ایمنی/);
+  assert.match(assets, /لیفتراک/);
+  assert.match(assets, /نفت، گاز و پتروشیمی/);
+  assert.match(assets, /ارزیابی ریسک اختصاصی محل/);
 });
 
 test("uses hardened Electron window settings", async () => {
-  const main = await readFile(
-    new URL("desktop/electron/main.cjs", projectRoot),
-    "utf8",
-  );
+  const [main, workflow] = await Promise.all([
+    readFile(new URL("desktop/electron/main.cjs", projectRoot), "utf8"),
+    readFile(new URL(".github/workflows/windows-portable.yml", projectRoot), "utf8"),
+  ]);
 
   assert.match(main, /contextIsolation:\s*true/);
   assert.match(main, /nodeIntegration:\s*false/);
@@ -47,4 +51,10 @@ test("uses hardened Electron window settings", async () => {
   assert.match(main, /devTools:\s*false/);
   assert.match(main, /setPermissionRequestHandler/);
   assert.match(main, /benvari\.e@yahoo\.com/);
+  assert.match(main, /--smoke-test/);
+  assert.match(main, /did-finish-load/);
+  assert.match(main, /did-fail-load/);
+  assert.match(workflow, /win-unpacked\/HSE FieldLog\.exe/);
+  assert.match(workflow, /Start-Process/);
+  assert.match(workflow, /Get-FileHash/);
 });
