@@ -5,22 +5,24 @@ const { app, BrowserWindow, Menu, shell } = require("electron");
 
 const APP_ID = "com.ehsanbenvari.hsefieldlog";
 const CONTACT_EMAIL = "benvari.e@yahoo.com";
+const TELEGRAM_URL = "https://t.me/Ehsanyone";
 const IS_SMOKE_TEST = process.argv.includes("--smoke-test");
 
-function isApprovedMailLink(value) {
+function isApprovedExternalLink(value) {
   try {
     const url = new URL(value);
-    return (
+    const isContactEmail =
       url.protocol === "mailto:" &&
-      url.pathname.toLowerCase() === CONTACT_EMAIL
-    );
+      url.pathname.toLowerCase() === CONTACT_EMAIL;
+    const isTelegramContact = url.href === TELEGRAM_URL;
+    return isContactEmail || isTelegramContact;
   } catch {
     return false;
   }
 }
 
 function openApprovedExternal(value) {
-  if (isApprovedMailLink(value)) {
+  if (isApprovedExternalLink(value)) {
     void shell.openExternal(value);
   }
 }

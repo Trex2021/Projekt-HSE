@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent, FormEvent, MouseEvent } from "react";
+import { AppLauncher } from "@capacitor/app-launcher";
 import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
@@ -57,6 +58,8 @@ interface HsePrinterPlugin {
 const HsePrinter = registerPlugin<HsePrinterPlugin>("HsePrinter");
 
 const STORAGE_KEY = "hse-fieldlog:v1";
+const TELEGRAM_ID = "@Ehsanyone";
+const TELEGRAM_URL = "https://t.me/Ehsanyone";
 
 const CATEGORIES = [
   "برق",
@@ -262,6 +265,17 @@ export default function Home() {
   const notify = (message: string) => {
     setToast(message);
     window.setTimeout(() => setToast(""), 3200);
+  };
+
+  const openTelegramContact = async (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    event.preventDefault();
+    try {
+      await AppLauncher.openUrl({ url: TELEGRAM_URL });
+    } catch {
+      notify("بازکردن تلگرام انجام نشد؛ شناسهٔ @Ehsanyone را در تلگرام جست‌وجو کنید.");
+    }
   };
 
   useEffect(() => {
@@ -692,7 +706,7 @@ export default function Home() {
         >
           <span>LICENSE &amp; CONTACT</span>
           <strong>Ehsan Benvari</strong>
-          <small>benvari.e@yahoo.com</small>
+          <small>benvari.e@yahoo.com · {TELEGRAM_ID}</small>
         </button>
       </aside>
 
@@ -1398,7 +1412,7 @@ export default function Home() {
               </div>
               <footer className="report-footer">
                 این گزارش از داده‌های ذخیره‌شده روی دستگاه تهیه شده است.
-                <span>HSE FieldLog · Ehsan Benvari · benvari.e@yahoo.com</span>
+                <span>HSE FieldLog · Ehsan Benvari · benvari.e@yahoo.com · {TELEGRAM_ID}</span>
               </footer>
             </section>
           </div>
@@ -1426,7 +1440,7 @@ export default function Home() {
                 <p className="eyebrow">دارندهٔ مجوز و توسعه‌دهنده</p>
                 <h3>Ehsan Benvari</h3>
                 <p>
-                  طراحی محصول، ساخت نسخهٔ وب و ویندوز و نگهداری اطلاعات تماس
+                  طراحی محصول، ساخت نسخه‌های اندروید، ویندوز و وب و نگهداری اطلاعات تماس
                   این نرم‌افزار با نام فوق انجام شده است.
                 </p>
                 <div className="license-signature">
@@ -1442,7 +1456,7 @@ export default function Home() {
                   استفاده، کپی و تغییر نرم‌افزار طبق شرایط مجوز MIT مجاز است؛
                   اطلاعیهٔ کپی‌رایت و متن مجوز باید در نسخه‌های توزیع‌شده حفظ شود.
                 </p>
-                <span className="license-tag">نسخهٔ ۱.۲.۰ · وب و ویندوز</span>
+                <span className="license-tag">نسخهٔ ۱.۳.۱ · اندروید، ویندوز و وب</span>
               </article>
 
               <article className="license-card panel contact-card">
@@ -1450,19 +1464,31 @@ export default function Home() {
                 <h3>با توسعه‌دهنده در ارتباط باشید</h3>
                 <p>
                   برای همکاری، پیشنهاد قابلیت جدید، گزارش اشکال یا استفادهٔ
-                  سازمانی از طریق ایمیل زیر پیام ارسال کنید.
+                  سازمانی از طریق ایمیل یا تلگرام زیر پیام ارسال کنید.
                 </p>
-                <a className="contact-mail" href="mailto:benvari.e@yahoo.com">
-                  <span>ارسال ایمیل به</span>
-                  <strong dir="ltr">benvari.e@yahoo.com</strong>
-                </a>
+                <div className="contact-links">
+                  <a className="contact-mail" href="mailto:benvari.e@yahoo.com">
+                    <span>ارسال ایمیل به</span>
+                    <strong dir="ltr">benvari.e@yahoo.com</strong>
+                  </a>
+                  <a
+                    className="contact-mail telegram-contact"
+                    href={TELEGRAM_URL}
+                    onClick={openTelegramContact}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <span>گفت‌وگو در تلگرام</span>
+                    <strong dir="ltr">{TELEGRAM_ID}</strong>
+                  </a>
+                </div>
               </article>
 
               <article className="license-card panel privacy-card">
                 <p className="eyebrow">حریم خصوصی</p>
                 <h3>اطلاعات در اختیار شماست</h3>
                 <p>
-                  داده‌های نسخهٔ ویندوز و وب روی همان دستگاه ذخیره می‌شوند و
+                  داده‌های نسخه‌های اندروید، ویندوز و وب روی همان دستگاه ذخیره می‌شوند و
                   به‌صورت خودکار بین دستگاه‌ها همگام نمی‌شوند. برای جابه‌جایی
                   اطلاعات از فایل پشتیبان استفاده کنید.
                 </p>

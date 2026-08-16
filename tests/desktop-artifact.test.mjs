@@ -26,6 +26,7 @@ test("builds an offline Windows renderer with license and contact details", asyn
   assert.match(html, /src="\.\/assets\//);
   assert.match(assets, /Ehsan Benvari/);
   assert.match(assets, /benvari\.e@yahoo\.com/);
+  assert.match(assets, /@Ehsanyone/);
   assert.match(assets, /حذف همه/);
   assert.match(assets, /ذخیرهٔ تغییرات بازرسی/);
   assert.match(assets, /جدول جزئیات بازرسی‌ها/);
@@ -51,10 +52,14 @@ test("uses hardened Electron window settings", async () => {
   assert.match(main, /devTools:\s*false/);
   assert.match(main, /setPermissionRequestHandler/);
   assert.match(main, /benvari\.e@yahoo\.com/);
+  assert.match(main, /https:\/\/t\.me\/Ehsanyone/);
+  assert.match(main, /isApprovedExternalLink/);
+  assert.match(main, /url\.href === TELEGRAM_URL/);
   assert.match(main, /--smoke-test/);
   assert.match(main, /did-finish-load/);
   assert.match(main, /did-fail-load/);
   assert.match(workflow, /win-unpacked\/HSE FieldLog\.exe/);
+  assert.match(workflow, /HSE-FieldLog-Portable-1\.3\.1\.exe/);
   assert.match(workflow, /Start-Process/);
   assert.match(workflow, /Get-FileHash/);
 });
