@@ -8,14 +8,15 @@ async function read(relativePath) {
   return readFile(new URL(relativePath, projectRoot), "utf8");
 }
 
-test("configures a private, offline Android package at version 1.3.0", async () => {
-  const [config, gradle, manifest, variables, filePaths, unitTest] = await Promise.all([
+test("configures a private, offline Android package at version 1.3.1", async () => {
+  const [config, gradle, manifest, variables, filePaths, unitTest, workflow] = await Promise.all([
     read("capacitor.config.ts"),
     read("android/app/build.gradle"),
     read("android/app/src/main/AndroidManifest.xml"),
     read("android/variables.gradle"),
     read("android/app/src/main/res/xml/file_paths.xml"),
     read("android/app/src/test/java/com/ehsanbenvari/hsefieldlog/BasicUnitTest.java"),
+    read(".github/workflows/android-apk.yml"),
   ]);
 
   assert.match(config, /appId:\s*"com\.ehsanbenvari\.hsefieldlog"/);
@@ -24,10 +25,12 @@ test("configures a private, offline Android package at version 1.3.0", async () 
   assert.match(config, /webContentsDebuggingEnabled:\s*false/);
   assert.match(config, /allowMixedContent:\s*false/);
   assert.match(gradle, /applicationId\s+"com\.ehsanbenvari\.hsefieldlog"/);
-  assert.match(gradle, /versionCode\s+14/);
-  assert.match(gradle, /versionName\s+"1\.3\.0"/);
-  assert.match(unitTest, /assertEquals\("1\.3\.0", BuildConfig\.VERSION_NAME\)/);
-  assert.match(unitTest, /assertEquals\(14, BuildConfig\.VERSION_CODE\)/);
+  assert.match(gradle, /versionCode\s+15/);
+  assert.match(gradle, /versionName\s+"1\.3\.1"/);
+  assert.match(unitTest, /assertEquals\("1\.3\.1", BuildConfig\.VERSION_NAME\)/);
+  assert.match(unitTest, /assertEquals\(15, BuildConfig\.VERSION_CODE\)/);
+  assert.match(workflow, /HSE-FieldLog-Android-1\.3\.1\.apk/);
+  assert.match(workflow, /versionCode='15' versionName='1\.3\.1'/);
   assert.match(variables, /minSdkVersion\s*=\s*24/);
   assert.match(variables, /targetSdkVersion\s*=\s*36/);
   assert.match(manifest, /android:allowBackup="false"/);
@@ -82,6 +85,8 @@ test("packages native backup sharing with the complete Persian interface", async
   assert.match(javascript, /ذخیره به‌صورت PDF/);
   assert.match(javascript, /Ehsan Benvari/);
   assert.match(javascript, /benvari\.e@yahoo\.com/);
+  assert.match(javascript, /@Ehsanyone/);
+  assert.match(javascript, /AppLauncher/);
   assert.match(javascript, /بازیابی انواع فایل پشتیبان/);
   assert.match(javascript, /ذخیره یا اشتراک‌گذاری فایل/);
   assert.match(javascript, /ذخیرهٔ تغییرات بازرسی/);

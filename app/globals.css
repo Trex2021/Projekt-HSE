@@ -1712,10 +1712,16 @@ td small {
   font-weight: 800;
 }
 
+.contact-links {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
 .contact-mail {
   display: grid;
   gap: 5px;
-  margin-top: 22px;
+  margin: 0;
   padding: 16px;
   border: 1px solid #d9e4dc;
   border-radius: 13px;
@@ -1740,6 +1746,19 @@ td small {
 .contact-mail strong {
   font-family: Arial, sans-serif;
   font-size: 14px;
+}
+
+.telegram-contact {
+  border-color: #cfe2ef;
+  background: #f1f8fc;
+  color: #176b96;
+}
+
+.telegram-contact:hover,
+.telegram-contact:focus-visible {
+  border-color: #229ed9;
+  background: #eaf6fc;
+  outline-color: rgba(34, 158, 217, 0.15);
 }
 
 .privacy-card .secondary-button {
