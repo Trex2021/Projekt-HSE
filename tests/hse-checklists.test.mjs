@@ -12,8 +12,8 @@ import {
 
 test("ships a broad, categorized HSE checklist library", () => {
   assert.equal(CHECKLIST_SECTORS.length, 14);
-  assert.ok(CHECKLIST_TEMPLATE_COUNT >= 120);
-  assert.ok(CHECKLIST_CONTROL_COUNT >= 700);
+  assert.ok(CHECKLIST_TEMPLATE_COUNT >= 134);
+  assert.ok(CHECKLIST_CONTROL_COUNT >= 931);
 
   const ids = new Set(CHECKLISTS.map((template) => template.id));
   assert.equal(ids.size, CHECKLISTS.length, "checklist ids must be unique");
@@ -29,12 +29,35 @@ test("ships a broad, categorized HSE checklist library", () => {
     assert.ok(template.description.trim().length > 2);
     assert.ok(template.keywords.length >= 3);
     assert.ok(template.items.length >= 5);
+    assert.equal(template.sectors[0], template.sector);
+    assert.equal(new Set(template.sectors).size, template.sectors.length);
     assert.equal(
       new Set(template.items).size,
       template.items.length,
       `${template.id} should not repeat a control`,
     );
   }
+});
+
+test("includes every supplied construction checklist and all 188 source controls", () => {
+  const suppliedIds = [
+    "construction-kitchen-inspection",
+    "construction-pantry-inspection",
+    "construction-restroom-inspection",
+    "construction-climber",
+    "construction-powered-saw",
+    "construction-rebar-bending-cutting",
+    "construction-spg-installation",
+    "construction-stair-stringer-removal",
+    "construction-gas-air-cylinders",
+    "construction-angle-grinder",
+  ];
+  const supplied = CHECKLISTS.filter((template) => suppliedIds.includes(template.id));
+
+  assert.equal(supplied.length, suppliedIds.length);
+  assert.equal(supplied.reduce((total, template) => total + template.items.length, 0), 188);
+  assert.ok(supplied.every((template) => template.sector === "construction"));
+  assert.ok(supplied.every((template) => template.sectors.includes("construction")));
 });
 
 test("keeps legacy templates compatible with saved inspection records", () => {
@@ -53,7 +76,17 @@ test("normalizes Persian search and combines activity and sector filters", () =>
 
   const forklift = filterChecklists(CHECKLISTS, "لیفت تراک", "lifting-logistics");
   assert.ok(forklift.some((template) => template.id === "forklift"));
-  assert.ok(forklift.every((template) => template.sector === "lifting-logistics"));
+  assert.ok(forklift.every((template) => template.sectors.includes("lifting-logistics")));
+
+  const crossSectorGrinder = filterChecklists(CHECKLISTS, "سنگ فرز", "manufacturing");
+  assert.ok(
+    crossSectorGrinder.some((template) => template.id === "construction-angle-grinder"),
+  );
+
+  const constructionTemplates = filterChecklists(CHECKLISTS, "", "construction");
+  assert.ok(
+    constructionTemplates.some((template) => template.id === "construction-kitchen-inspection"),
+  );
 
   const noCrossSectorResult = filterChecklists(
     CHECKLISTS,

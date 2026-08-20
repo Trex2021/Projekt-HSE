@@ -1095,6 +1095,9 @@ textarea {
 .template-card strong { font-size: 10px; }
 .template-card span { color: var(--muted); font-size: 8px; line-height: 1.7; }
 .template-card small { color: var(--green-600); font-size: 7px; line-height: 1.6; }
+.template-card .template-sector-note {
+  color: #6f7c75;
+}
 
 .catalog-empty {
   display: grid;

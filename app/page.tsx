@@ -35,7 +35,7 @@ import {
   CHECKLIST_TEMPLATE_COUNT,
   CHECKLISTS,
   filterChecklists,
-  getChecklistSector,
+  getChecklistSectors,
   type ChecklistSectorId,
 } from "@/lib/hse-checklists";
 
@@ -336,20 +336,26 @@ export default function Home() {
   const summary = useMemo(() => summarizeFindings(findings), [findings]);
   const currentChecklist =
     CHECKLISTS.find((item) => item.id === selectedChecklist) ?? CHECKLISTS[0];
-  const currentChecklistSector = getChecklistSector(currentChecklist.sector);
+  const currentChecklistSectors = getChecklistSectors(currentChecklist);
   const filteredChecklists = useMemo(
     () => filterChecklists(CHECKLISTS, checklistQuery, checklistSector),
     [checklistQuery, checklistSector],
   );
   const groupedChecklists = useMemo(
     () =>
-      CHECKLIST_SECTORS.map((sector) => ({
+      (checklistSector === "all"
+        ? CHECKLIST_SECTORS
+        : CHECKLIST_SECTORS.filter((sector) => sector.id === checklistSector)
+      ).map((sector) => ({
         sector,
         templates: filteredChecklists.filter(
-          (template) => template.sector === sector.id,
+          (template) =>
+            checklistSector === "all"
+              ? template.sector === sector.id
+              : template.sectors.includes(sector.id),
         ),
       })).filter((group) => group.templates.length > 0),
-    [filteredChecklists],
+    [checklistSector, filteredChecklists],
   );
   const formRpn = calculateRpn(
     findingForm.severity,
@@ -1046,6 +1052,14 @@ export default function Home() {
                           <small>
                             {template.activity} · {template.items.length.toLocaleString("fa-IR")} کنترل
                           </small>
+                          {template.sectors.length > 1 ? (
+                            <small className="template-sector-note">
+                              حوزه‌های مرتبط: {getChecklistSectors(template)
+                                .slice(1)
+                                .map((sector) => sector.shortName)
+                                .join("، ")}
+                            </small>
+                          ) : null}
                         </button>
                       ))}
                     </div>
@@ -1082,7 +1096,7 @@ export default function Home() {
                   </p>
                   <h2>{currentChecklist.name}</h2>
                   <p className="current-template-context">
-                    {currentChecklistSector.name} · {currentChecklist.activity}
+                    {currentChecklistSectors.map((sector) => sector.name).join("، ")} · {currentChecklist.activity}
                   </p>
                 </div>
                 <span className="completion-chip">
@@ -1456,7 +1470,7 @@ export default function Home() {
                   استفاده، کپی و تغییر نرم‌افزار طبق شرایط مجوز MIT مجاز است؛
                   اطلاعیهٔ کپی‌رایت و متن مجوز باید در نسخه‌های توزیع‌شده حفظ شود.
                 </p>
-                <span className="license-tag">نسخهٔ ۱.۳.۱ · اندروید، ویندوز و وب</span>
+                <span className="license-tag">نسخهٔ ۱.۴.۰ · اندروید، ویندوز و وب</span>
               </article>
 
               <article className="license-card panel contact-card">
