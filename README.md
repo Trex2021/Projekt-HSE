@@ -12,6 +12,7 @@ Copyright and contact: **Ehsan Benvari** · [benvari.e@yahoo.com](mailto:benvari
 - Find shared checklists in every applicable sector while keeping one primary catalog entry
 - Cover construction, manufacturing, oil and gas, electricity, lifting, fire, chemicals, healthcare, agriculture, mining, marine, waste, office, and public-service work
 - Track inspection nonconformities
+- Prioritize safety findings by overdue, open, in-progress, and closed status, with older records first in each group
 - Review every saved checklist response, edit prior inspections, or delete one or all inspection records
 - Include safety-item descriptions and complete checklist-item details in printable management reports, CSV exports, and restorable backups
 - Export findings to UTF-8 CSV for Excel

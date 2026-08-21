@@ -7,6 +7,7 @@ import {
   escapeCsv,
   getRiskBand,
   isOverdue,
+  sortFindingsForDisplay,
   summarizeFindings,
 } from "../lib/hse-core.ts";
 
@@ -66,6 +67,37 @@ test("summarizes finding status, risk, and deadlines", () => {
       overdue: 1,
     },
   );
+});
+
+test("sorts findings by overdue, open, in-progress, and closed status", () => {
+  const now = new Date("2026-08-14T12:00:00Z");
+  const findings = [
+    { id: "closed-new", status: "closed", dueDate: "2026-08-01", createdAt: "2026-08-12T08:00:00Z" },
+    { id: "open-new", status: "open", dueDate: "2026-08-20", createdAt: "2026-08-13T08:00:00Z" },
+    { id: "overdue-new", status: "in_progress", dueDate: "2026-08-13", createdAt: "2026-08-11T08:00:00Z" },
+    { id: "in-progress-old", status: "in_progress", dueDate: "2026-08-20", createdAt: "2026-08-09T08:00:00Z" },
+    { id: "closed-old", status: "closed", dueDate: "2026-08-01", createdAt: "2026-08-08T08:00:00Z" },
+    { id: "overdue-old", status: "open", dueDate: "2026-08-10", createdAt: "2026-08-10T08:00:00Z" },
+    { id: "open-old", status: "open", dueDate: "2026-08-21", createdAt: "2026-08-12T08:00:00Z" },
+    { id: "in-progress-new", status: "in_progress", dueDate: "2026-08-22", createdAt: "2026-08-13T09:00:00Z" },
+  ];
+
+  const sorted = sortFindingsForDisplay(findings, now);
+
+  assert.deepEqual(
+    sorted.map((finding) => finding.id),
+    [
+      "overdue-old",
+      "overdue-new",
+      "open-old",
+      "open-new",
+      "in-progress-old",
+      "in-progress-new",
+      "closed-old",
+      "closed-new",
+    ],
+  );
+  assert.equal(findings[0].id, "closed-new", "input order should stay unchanged");
 });
 
 test("escapes CSV cells and emits an Excel-friendly UTF-8 BOM", () => {

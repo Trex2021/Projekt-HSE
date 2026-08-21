@@ -64,7 +64,7 @@ test("uses hardened Electron window settings", async () => {
   assert.match(main, /did-finish-load/);
   assert.match(main, /did-fail-load/);
   assert.match(workflow, /win-unpacked\/HSE FieldLog\.exe/);
-  assert.match(workflow, /HSE-FieldLog-Portable-1\.6\.1\.exe/);
+  assert.match(workflow, /HSE-FieldLog-Portable-1\.6\.2\.exe/);
   assert.match(workflow, /Start-Process/);
   assert.match(workflow, /Get-FileHash/);
 });

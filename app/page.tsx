@@ -13,6 +13,7 @@ import {
   getRiskBand,
   getRiskLabel,
   isOverdue,
+  sortFindingsForDisplay,
   summarizeFindings,
   type FindingStatus,
 } from "@/lib/hse-core";
@@ -365,7 +366,7 @@ export default function Home() {
 
   const filteredFindings = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("fa");
-    return findings
+    const matches = findings
       .filter((finding) => statusFilter === "all" || finding.status === statusFilter)
       .filter((finding) => {
         if (!normalized) return true;
@@ -376,8 +377,9 @@ export default function Home() {
           finding.category,
           finding.responsible,
         ].some((value) => value.toLocaleLowerCase("fa").includes(normalized));
-      })
-      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+      });
+
+    return sortFindingsForDisplay(matches);
   }, [findings, query, statusFilter]);
 
   const addFinding = (event: FormEvent<HTMLFormElement>) => {
@@ -1471,7 +1473,7 @@ export default function Home() {
                   استفاده، کپی و تغییر نرم‌افزار طبق شرایط مجوز MIT مجاز است؛
                   اطلاعیهٔ کپی‌رایت و متن مجوز باید در نسخه‌های توزیع‌شده حفظ شود.
                 </p>
-                <span className="license-tag">نسخهٔ ۱.۶.۱ · اندروید، ویندوز و وب</span>
+                <span className="license-tag">نسخهٔ ۱.۶.۲ · اندروید، ویندوز و وب</span>
               </article>
 
               <article className="license-card panel contact-card">

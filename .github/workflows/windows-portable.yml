@@ -61,7 +61,7 @@ jobs:
       - name: Smoke-test and hash executable
         shell: pwsh
         run: |
-          $artifact = "release/HSE-FieldLog-Portable-1.6.1.exe"
+          $artifact = "release/HSE-FieldLog-Portable-1.6.2.exe"
           $unpacked = "release/win-unpacked/HSE FieldLog.exe"
           if (-not (Test-Path $artifact)) { throw "Portable executable was not created." }
           if ((Get-Item $artifact).Length -lt 50MB) { throw "Portable executable is unexpectedly small." }
@@ -69,14 +69,14 @@ jobs:
           $process = Start-Process -FilePath $unpacked -ArgumentList "--smoke-test", "--disable-gpu" -PassThru -Wait
           if ($process.ExitCode -ne 0) { throw "Packaged app smoke test failed with exit code $($process.ExitCode)." }
           $hash = (Get-FileHash $artifact -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  HSE-FieldLog-Portable-1.6.1.exe" | Set-Content -Encoding ascii release/windows-sha256.txt
+          "$hash  HSE-FieldLog-Portable-1.6.2.exe" | Set-Content -Encoding ascii release/windows-sha256.txt
 
       - name: Upload verified Windows package
         uses: actions/upload-artifact@v4
         with:
-          name: HSE-FieldLog-Windows-1.6.1
+          name: HSE-FieldLog-Windows-1.6.2
           path: |
-            release/HSE-FieldLog-Portable-1.6.1.exe
+            release/HSE-FieldLog-Portable-1.6.2.exe
             release/windows-sha256.txt
           if-no-files-found: error
           retention-days: 30
