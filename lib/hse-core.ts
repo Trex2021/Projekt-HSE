@@ -9,6 +9,12 @@ export interface FindingLike {
   detection: number;
 }
 
+export interface DisplayFindingLike {
+  status: FindingStatus;
+  dueDate: string;
+  createdAt: string;
+}
+
 export interface DashboardSummary {
   total: number;
   open: number;
@@ -58,6 +64,41 @@ export function isOverdue(
   if (!dueDate || status === "closed") return false;
   const deadline = new Date(`${dueDate}T23:59:59`);
   return Number.isFinite(deadline.getTime()) && deadline.getTime() < now.getTime();
+}
+
+const FINDING_STATUS_DISPLAY_ORDER: Record<FindingStatus, number> = {
+  open: 1,
+  in_progress: 2,
+  closed: 3,
+};
+
+const createdAtTimestamp = (value: string) => {
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) ? timestamp : Number.POSITIVE_INFINITY;
+};
+
+export function sortFindingsForDisplay<T extends DisplayFindingLike>(
+  findings: readonly T[],
+  now = new Date(),
+) {
+  return [...findings].sort((left, right) => {
+    const leftOrder = isOverdue(left.dueDate, left.status, now)
+      ? 0
+      : FINDING_STATUS_DISPLAY_ORDER[left.status];
+    const rightOrder = isOverdue(right.dueDate, right.status, now)
+      ? 0
+      : FINDING_STATUS_DISPLAY_ORDER[right.status];
+
+    if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+
+    const leftCreatedAt = createdAtTimestamp(left.createdAt);
+    const rightCreatedAt = createdAtTimestamp(right.createdAt);
+    if (leftCreatedAt !== rightCreatedAt) {
+      return leftCreatedAt - rightCreatedAt;
+    }
+
+    return left.createdAt.localeCompare(right.createdAt);
+  });
 }
 
 export function summarizeFindings(
