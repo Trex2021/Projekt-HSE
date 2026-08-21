@@ -286,13 +286,15 @@ function requiredCell(row: CsvRow, headers: string[], name: string) {
 
 function parseFindingsCsv(rows: CsvRow[], makeId: MakeId): BackupFinding[] {
   const [headers, ...data] = rows;
+  const descriptionIndex = headerIndex(headers, "توضیحات");
   return data.map((row) => {
     const createdAt = requiredCell(row, headers, "تاریخ ثبت").trim() || new Date().toISOString();
     return normalizeFinding(
       {
         id: makeId(),
         title: requiredCell(row, headers, "عنوان"),
-        description: "",
+        description:
+          descriptionIndex >= 0 ? (row[descriptionIndex] ?? "") : "",
         location: requiredCell(row, headers, "محل"),
         contractor: requiredCell(row, headers, "پیمانکار"),
         category: requiredCell(row, headers, "دسته‌بندی"),

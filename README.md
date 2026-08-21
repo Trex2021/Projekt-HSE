@@ -13,7 +13,7 @@ Copyright and contact: **Ehsan Benvari** · [benvari.e@yahoo.com](mailto:benvari
 - Cover construction, manufacturing, oil and gas, electricity, lifting, fire, chemicals, healthcare, agriculture, mining, marine, waste, office, and public-service work
 - Track inspection nonconformities
 - Review every saved checklist response, edit prior inspections, or delete one or all inspection records
-- Include complete checklist-item details in printable management reports and inspection CSV exports
+- Include safety-item descriptions and complete checklist-item details in printable management reports, CSV exports, and restorable backups
 - Export findings to UTF-8 CSV for Excel
 - Print a management report or save it as PDF
 - Export a versioned JSON backup and restore JSON, findings CSV, or inspections CSV files

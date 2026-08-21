@@ -104,6 +104,7 @@ export function escapeCsv(value: unknown) {
 export function buildFindingsCsv(
   rows: Array<{
     title: string;
+    description: string;
     location: string;
     contractor: string;
     category: string;
@@ -123,6 +124,7 @@ export function buildFindingsCsv(
   };
   const header = [
     "عنوان",
+    "توضیحات",
     "محل",
     "پیمانکار",
     "دسته‌بندی",
@@ -140,6 +142,7 @@ export function buildFindingsCsv(
     const rpn = calculateRpn(row.severity, row.occurrence, row.detection);
     return [
       row.title,
+      row.description,
       row.location,
       row.contractor,
       row.category,
