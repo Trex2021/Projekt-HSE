@@ -73,6 +73,7 @@ test("escapes CSV cells and emits an Excel-friendly UTF-8 BOM", () => {
   const csv = buildFindingsCsv([
     {
       title: "کابل معیوب",
+      description: 'اتصال مستقیم کابل، نیازمند "اصلاح فوری" است.\nبرق قطع شود.',
       location: "طبقه -۳",
       contractor: "پیمانکار نمونه",
       category: "برق",
@@ -86,6 +87,8 @@ test("escapes CSV cells and emits an Excel-friendly UTF-8 BOM", () => {
     },
   ]);
   assert.equal(csv.charCodeAt(0), 0xfeff);
+  assert.match(csv, /^\uFEFFعنوان,توضیحات,محل,/);
   assert.match(csv, /کابل معیوب/);
+  assert.match(csv, /"اتصال مستقیم کابل، نیازمند ""اصلاح فوری"" است\.\nبرق قطع شود\."/);
   assert.match(csv, /,60,/);
 });

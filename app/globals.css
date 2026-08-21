@@ -1536,6 +1536,16 @@ textarea {
   border-top: 2px solid var(--green-900);
 }
 
+.findings-report-table td:nth-child(2) {
+  min-width: 240px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.findings-report-table td:first-child {
+  min-width: 145px;
+}
+
 .inspection-report-table td:nth-child(4) {
   min-width: 230px;
   line-height: 1.65;
@@ -2196,6 +2206,10 @@ td small {
 
   .inspection-report-table td:nth-child(4) {
     min-width: 165px;
+  }
+
+  .findings-report-table td:nth-child(2) {
+    min-width: 190px;
   }
 
   .inspection-report-table td:last-child {

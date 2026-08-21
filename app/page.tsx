@@ -1295,7 +1295,7 @@ export default function Home() {
               <div className="action-grid">
                 <button className="action-card" onClick={exportCsv}>
                   <strong>خروجی Excel / CSV</strong>
-                  <span>فهرست کامل موارد ایمنی و امتیازهای FMEA</span>
+                  <span>فهرست کامل موارد ایمنی، توضیحات ثبت‌شده و امتیازهای FMEA</span>
                 </button>
                 <button className="action-card" onClick={exportInspectionsCsv}>
                   <strong>خروجی Excel بازرسی‌ها</strong>
@@ -1303,7 +1303,7 @@ export default function Home() {
                 </button>
                 <button className="action-card" onClick={exportBackup}>
                   <strong>دریافت فایل پشتیبان</strong>
-                  <span>ذخیرهٔ تمام موارد و بازرسی‌ها در فایل JSON</span>
+                  <span>ذخیرهٔ تمام موارد، توضیحات و بازرسی‌ها در فایل JSON</span>
                 </button>
                 <label className="action-card file-action">
                   <strong>بازیابی انواع فایل پشتیبان</strong>
@@ -1348,10 +1348,10 @@ export default function Home() {
                 </div>
                 <strong>{findings.length.toLocaleString("fa-IR")} مورد</strong>
               </div>
-              <div className="report-table-wrap">
+              <div className="report-table-wrap findings-report-table">
                 <table>
                   <thead>
-                    <tr><th>عنوان</th><th>محل / پیمانکار</th><th>RPN</th><th>وضعیت</th><th>مهلت</th></tr>
+                    <tr><th>عنوان</th><th>توضیحات</th><th>محل / پیمانکار</th><th>RPN</th><th>وضعیت</th><th>مهلت</th></tr>
                   </thead>
                   <tbody>
                     {findings.map((finding) => {
@@ -1363,6 +1363,7 @@ export default function Home() {
                       return (
                         <tr key={finding.id}>
                           <td>{finding.title}</td>
+                          <td>{finding.description || "توضیحی ثبت نشده است."}</td>
                           <td>{finding.location}<small>{finding.contractor}</small></td>
                           <td><span className={`table-risk ${getRiskBand(rpn)}`}>{rpn.toLocaleString("fa-IR")}</span></td>
                           <td>{STATUS_LABELS[finding.status]}</td>
@@ -1470,7 +1471,7 @@ export default function Home() {
                   استفاده، کپی و تغییر نرم‌افزار طبق شرایط مجوز MIT مجاز است؛
                   اطلاعیهٔ کپی‌رایت و متن مجوز باید در نسخه‌های توزیع‌شده حفظ شود.
                 </p>
-                <span className="license-tag">نسخهٔ ۱.۶.۰ · اندروید، ویندوز و وب</span>
+                <span className="license-tag">نسخهٔ ۱.۶.۱ · اندروید، ویندوز و وب</span>
               </article>
 
               <article className="license-card panel contact-card">

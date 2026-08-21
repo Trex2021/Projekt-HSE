@@ -13,7 +13,7 @@ const ids = () => {
 const finding = {
   id: "finding-1",
   title: 'کابل "معیوب"، طبقه ۳-',
-  description: "توضیح فقط در JSON نگهداری می‌شود.",
+  description: "توضیح کامل باید در JSON و CSV نگهداری شود.",
   location: "طبقه ۳-, بخش شرقی",
   contractor: "پیمانکار نمونه",
   category: "برق",
@@ -70,6 +70,7 @@ test("detects and restores the findings CSV exported by the app", () => {
   assert.equal(result.inspections, undefined);
   assert.equal(result.findings.length, 1);
   assert.equal(result.findings[0].title, finding.title);
+  assert.equal(result.findings[0].description, finding.description);
   assert.equal(result.findings[0].location, finding.location);
   assert.equal(result.findings[0].status, "in_progress");
   assert.equal(result.findings[0].severity, 5);
@@ -91,6 +92,7 @@ test("accepts tab-separated Excel-style backups and Persian digits", () => {
     "مورد تست\tکارگاه\tپیمانکار\tبرق\t۵\t۴\t۳\t۶۰\tمتوسط\tباز\t2026-08-20\tسرپرست\t2026-08-14",
   ].join("\r\n");
   const result = parseRestoreFile(tsv, ids());
+  assert.equal(result.findings[0].description, "");
   assert.equal(result.findings[0].severity, 5);
   assert.equal(result.findings[0].occurrence, 4);
   assert.equal(result.findings[0].detection, 3);

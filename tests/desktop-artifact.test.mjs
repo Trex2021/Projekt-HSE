@@ -32,6 +32,8 @@ test("builds an offline Windows renderer with license and contact details", asyn
   assert.match(assets, /جدول جزئیات بازرسی‌ها/);
   assert.match(assets, /خروجی Excel بازرسی‌ها/);
   assert.match(assets, /بازیابی انواع فایل پشتیبان/);
+  assert.match(assets, /توضیحات ثبت‌شده و امتیازهای FMEA/);
+  assert.match(assets, /توضیحی ثبت نشده است/);
   assert.match(assets, /نوع CSV شناخته نشد/);
   assert.match(assets, /نامرتبط/);
   assert.match(assets, /کتابخانه جامع ایمنی/);
@@ -62,7 +64,7 @@ test("uses hardened Electron window settings", async () => {
   assert.match(main, /did-finish-load/);
   assert.match(main, /did-fail-load/);
   assert.match(workflow, /win-unpacked\/HSE FieldLog\.exe/);
-  assert.match(workflow, /HSE-FieldLog-Portable-1\.6\.0\.exe/);
+  assert.match(workflow, /HSE-FieldLog-Portable-1\.6\.1\.exe/);
   assert.match(workflow, /Start-Process/);
   assert.match(workflow, /Get-FileHash/);
 });

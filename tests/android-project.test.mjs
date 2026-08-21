@@ -8,7 +8,7 @@ async function read(relativePath) {
   return readFile(new URL(relativePath, projectRoot), "utf8");
 }
 
-test("configures a private, offline Android package at version 1.6.0", async () => {
+test("configures a private, offline Android package at version 1.6.1", async () => {
   const [config, gradle, manifest, variables, filePaths, unitTest, workflow] = await Promise.all([
     read("capacitor.config.ts"),
     read("android/app/build.gradle"),
@@ -25,12 +25,12 @@ test("configures a private, offline Android package at version 1.6.0", async () 
   assert.match(config, /webContentsDebuggingEnabled:\s*false/);
   assert.match(config, /allowMixedContent:\s*false/);
   assert.match(gradle, /applicationId\s+"com\.ehsanbenvari\.hsefieldlog"/);
-  assert.match(gradle, /versionCode\s+18/);
-  assert.match(gradle, /versionName\s+"1\.6\.0"/);
-  assert.match(unitTest, /assertEquals\("1\.6\.0", BuildConfig\.VERSION_NAME\)/);
-  assert.match(unitTest, /assertEquals\(18, BuildConfig\.VERSION_CODE\)/);
-  assert.match(workflow, /HSE-FieldLog-Android-1\.6\.0\.apk/);
-  assert.match(workflow, /versionCode='18' versionName='1\.6\.0'/);
+  assert.match(gradle, /versionCode\s+19/);
+  assert.match(gradle, /versionName\s+"1\.6\.1"/);
+  assert.match(unitTest, /assertEquals\("1\.6\.1", BuildConfig\.VERSION_NAME\)/);
+  assert.match(unitTest, /assertEquals\(19, BuildConfig\.VERSION_CODE\)/);
+  assert.match(workflow, /HSE-FieldLog-Android-1\.6\.1\.apk/);
+  assert.match(workflow, /versionCode='19' versionName='1\.6\.1'/);
   assert.match(variables, /minSdkVersion\s*=\s*24/);
   assert.match(variables, /targetSdkVersion\s*=\s*36/);
   assert.match(manifest, /android:allowBackup="false"/);
@@ -88,6 +88,8 @@ test("packages native backup sharing with the complete Persian interface", async
   assert.match(javascript, /@Ehsanyone/);
   assert.match(javascript, /AppLauncher/);
   assert.match(javascript, /بازیابی انواع فایل پشتیبان/);
+  assert.match(javascript, /توضیحات ثبت‌شده و امتیازهای FMEA/);
+  assert.match(javascript, /توضیحی ثبت نشده است/);
   assert.match(javascript, /ذخیره یا اشتراک‌گذاری فایل/);
   assert.match(javascript, /ذخیرهٔ تغییرات بازرسی/);
   assert.match(javascript, /نامرتبط/);
