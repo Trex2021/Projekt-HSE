@@ -1470,7 +1470,7 @@ export default function Home() {
                   استفاده، کپی و تغییر نرم‌افزار طبق شرایط مجوز MIT مجاز است؛
                   اطلاعیهٔ کپی‌رایت و متن مجوز باید در نسخه‌های توزیع‌شده حفظ شود.
                 </p>
-                <span className="license-tag">نسخهٔ ۱.۴.۰ · اندروید، ویندوز و وب</span>
+                <span className="license-tag">نسخهٔ ۱.۵.۰ · اندروید، ویندوز و وب</span>
               </article>
 
               <article className="license-card panel contact-card">

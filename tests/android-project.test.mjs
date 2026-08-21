@@ -8,7 +8,7 @@ async function read(relativePath) {
   return readFile(new URL(relativePath, projectRoot), "utf8");
 }
 
-test("configures a private, offline Android package at version 1.4.0", async () => {
+test("configures a private, offline Android package at version 1.5.0", async () => {
   const [config, gradle, manifest, variables, filePaths, unitTest, workflow] = await Promise.all([
     read("capacitor.config.ts"),
     read("android/app/build.gradle"),
@@ -25,12 +25,12 @@ test("configures a private, offline Android package at version 1.4.0", async () 
   assert.match(config, /webContentsDebuggingEnabled:\s*false/);
   assert.match(config, /allowMixedContent:\s*false/);
   assert.match(gradle, /applicationId\s+"com\.ehsanbenvari\.hsefieldlog"/);
-  assert.match(gradle, /versionCode\s+16/);
-  assert.match(gradle, /versionName\s+"1\.4\.0"/);
-  assert.match(unitTest, /assertEquals\("1\.4\.0", BuildConfig\.VERSION_NAME\)/);
-  assert.match(unitTest, /assertEquals\(16, BuildConfig\.VERSION_CODE\)/);
-  assert.match(workflow, /HSE-FieldLog-Android-1\.4\.0\.apk/);
-  assert.match(workflow, /versionCode='16' versionName='1\.4\.0'/);
+  assert.match(gradle, /versionCode\s+17/);
+  assert.match(gradle, /versionName\s+"1\.5\.0"/);
+  assert.match(unitTest, /assertEquals\("1\.5\.0", BuildConfig\.VERSION_NAME\)/);
+  assert.match(unitTest, /assertEquals\(17, BuildConfig\.VERSION_CODE\)/);
+  assert.match(workflow, /HSE-FieldLog-Android-1\.5\.0\.apk/);
+  assert.match(workflow, /versionCode='17' versionName='1\.5\.0'/);
   assert.match(variables, /minSdkVersion\s*=\s*24/);
   assert.match(variables, /targetSdkVersion\s*=\s*36/);
   assert.match(manifest, /android:allowBackup="false"/);

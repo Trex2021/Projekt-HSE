@@ -7,7 +7,7 @@ import org.junit.Test;
 public class BasicUnitTest {
     @Test
     public void versionLabelMatchesPackageVersion() {
-        assertEquals("1.4.0", BuildConfig.VERSION_NAME);
-        assertEquals(16, BuildConfig.VERSION_CODE);
+        assertEquals("1.5.0", BuildConfig.VERSION_NAME);
+        assertEquals(17, BuildConfig.VERSION_CODE);
     }
 }
