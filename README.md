@@ -8,7 +8,7 @@ Copyright and contact: **Ehsan Benvari** · [benvari.e@yahoo.com](mailto:benvari
 
 - Record safety findings with contractor, location, owner, deadline, and status
 - Calculate FMEA Risk Priority Number (`Severity × Occurrence × Detection`)
-- Search and filter 134 built-in HSE checklists with 931 field controls across 14 activity sectors
+- Search and filter 144 built-in HSE checklists with 1,064 field controls across 14 activity sectors
 - Find shared checklists in every applicable sector while keeping one primary catalog entry
 - Cover construction, manufacturing, oil and gas, electricity, lifting, fire, chemicals, healthcare, agriculture, mining, marine, waste, office, and public-service work
 - Track inspection nonconformities
