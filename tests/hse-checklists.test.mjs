@@ -12,8 +12,8 @@ import {
 
 test("ships a broad, categorized HSE checklist library", () => {
   assert.equal(CHECKLIST_SECTORS.length, 14);
-  assert.ok(CHECKLIST_TEMPLATE_COUNT >= 144);
-  assert.ok(CHECKLIST_CONTROL_COUNT >= 1_064);
+  assert.ok(CHECKLIST_TEMPLATE_COUNT >= 151);
+  assert.ok(CHECKLIST_CONTROL_COUNT >= 1_134);
 
   const ids = new Set(CHECKLISTS.map((template) => template.id));
   assert.equal(ids.size, CHECKLISTS.length, "checklist ids must be unique");
@@ -84,6 +84,27 @@ test("includes the second supplied construction set and all 133 source controls"
   }
 });
 
+test("includes the third supplied construction set and all 70 actionable controls", () => {
+  const suppliedCounts = new Map([
+    ["construction-forklift-inspection", 18],
+    ["construction-water-resources", 8],
+    ["construction-concrete-cutting", 11],
+    ["construction-fire-extinguisher-register", 11],
+    ["construction-corrective-action-followup", 8],
+    ["construction-safety-harness-inspection", 9],
+    ["construction-scaffold-planks", 5],
+  ]);
+  const supplied = CHECKLISTS.filter((template) => suppliedCounts.has(template.id));
+
+  assert.equal(supplied.length, suppliedCounts.size);
+  assert.equal(supplied.reduce((total, template) => total + template.items.length, 0), 70);
+  assert.ok(supplied.every((template) => template.sector === "construction"));
+  assert.ok(supplied.every((template) => template.sectors.includes("construction")));
+  for (const template of supplied) {
+    assert.equal(template.items.length, suppliedCounts.get(template.id), template.id);
+  }
+});
+
 test("keeps legacy templates compatible with saved inspection records", () => {
   for (const id of ["ppe", "electrical", "scaffold", "hose-reel"]) {
     assert.ok(CHECKLISTS.some((template) => template.id === id));
@@ -118,6 +139,24 @@ test("normalizes Persian search and combines activity and sector filters", () =>
   assert.ok(
     crossSectorWarehouse.some(
       (template) => template.id === "construction-warehouse-inspection",
+    ),
+  );
+
+  const crossSectorForklift = filterChecklists(CHECKLISTS, "بازرسی دستگاه لیفتراک", "manufacturing");
+  assert.ok(
+    crossSectorForklift.some(
+      (template) => template.id === "construction-forklift-inspection",
+    ),
+  );
+
+  const crossSectorExtinguisher = filterChecklists(
+    CHECKLISTS,
+    "بازرسی کپسول های اطفای حریق",
+    "office-public",
+  );
+  assert.ok(
+    crossSectorExtinguisher.some(
+      (template) => template.id === "construction-fire-extinguisher-register",
     ),
   );
 
